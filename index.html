@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>Basic Template</title>
+  <title>Tic-Tac-Toe</title>
   <meta name="description" content="Basic Template">
   <meta name="author" content="Andrew">
 
@@ -13,7 +13,78 @@
 </head>
 
 <body>
+  <div class="container">
+    <h1>Tic-Tac-Toe</h1>
+    <button id ="new-button">New Game</button>
+    <h2>Round 1</h2>
+    <div class="formContainer">
+      <div class="formPopup" id="popupForm">
+        <form class="player1Form" id="player1Form">
+          <h2>Enter Players</h2>
+          <label for="player1">
+            <strong>Player Name</strong>
+          </label>
+            <input type="text" id="player1" placeholder="Name" name="player1">
+            <p>Select Side</p>
+            <div id="playerSelection">
+              
+              <label  class="radio">
+                <input type="radio" id="playerselectX" name="playerSelect" value="X">
+                X
+              </label>
+              <br>
+              
+              <label class="radio">O<input type="radio" id="playerselect0" name="playerSelect" value="O">
+              </label>
+              <br>
+            </div>
+          
+          <p>Play Against Computer?</p>
+          <div id="compSelection">
+            <p>Yes</p>
+            <p>No</p>
+          </div>
+          <label for="playAgainstComp" class="switch" id="switch">
+            <input type="checkbox" name="switch" value="checked" id ="playAgainstComp">
+              <span class="slider"></span>
+          </label>
+          <div id="formContainer2">
+              <label for="player2">
+                <strong>Player 2 Name</strong>
+              </label>
+              <input type="text" id="player2" placeholder="Name" name="player2">
+          </div>
+          <button type="submit" id= "sumbit-button" class="btn">Submit</button>
+          <button type="button" class="btn close" id="close-button">Close</button>
+        </form>
+      </div>
+    </div>
 
+    <div class="play-area" id = "play-area">
+      <div class="play-area" id="play-area">
+        <div id="block_0" class="block"></div>
+        <div id="block_1" class="block"></div>
+        <div id="block_2" class="block"></div>
+        <div id="block_3" class="block"></div>
+        <div id="block_4" class="block"></div>
+        <div id="block_5" class="block"></div>
+        <div id="block_6" class="block"></div>
+        <div id="block_7" class="block"></div>
+        <div id="block_8" class="block"></div>
+        <div id="winner1" class="winner">
+          <p>Player 1</p>
+          <p>O</p>
+          <p>Score:</p>
+        </div>
+        <button id="reset" class="">Reset Board</button>
+        <div id="winner2" class="winner"></div>
+      </div>
+    </div>  
+
+
+
+      
+  </div>
 
   <script src="myScript.js"></script>
 </body>
