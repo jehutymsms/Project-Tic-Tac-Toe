@@ -1,53 +1,74 @@
 (Tic_Tac_ToeGame = () =>{
     let newButton = document.getElementById('new-button');
 
-    const gameBoardDisplay = ((player1 = 'player1', player2 = 'computer') => { 
-        let gameBoardArray = [0,1,2,3,4,5,6,7,8];
+//     const gameBoardDisplay = ((player1 = 'Player 1', playerselection = 'X',player2 = 'Computer', computerselection = 'O') => {
 
-        const cacheDom = (() => {
-            let popupForm = document.getElementById('popupForm'),
-            playArea = document.getElementById('play-area')
-
-            return{popupForm:popupForm,playArea:playArea} 
-        })()
-
-        const domElementMaker = (tag,id ,cLass= "") => {
-            let item = document.createElement(tag)
-            item.id = id;
-            item.className= cLass;
-            return item;
-        }
-
-        const addDomElements = (array) =>{
-
-            //3x3 Grid
-            for(i=0; i < array.length;i++){
-                let title = domElementMaker('div', 'block_' + array[i], 'block');
-                cacheDom.playArea.append(title);
-            }
-
-            // Winner Displays
-            for(i=1; i < 3;i++){
-                let title = domElementMaker('h2', 'winner' + i, 'winner');
-                cacheDom.playArea.append(title);
-            }
-
-            //Insert button inbetween Winner Displays
-            let resetButton = domElementMaker('button', 'reset',)
-            resetButton.innerHTML = "Reset Board";
-            let winner2 = document.getElementById('winner2');
-            cacheDom.playArea.insertBefore(resetButton, winner2);
-            
-        }
-
-        // render DOM
-        const render = (() => {})()
-
-
-        // addDomElements(gameBoardArray)
+//         let selections = {player1:player1, playerselection:playerselection,player2:player2, computerselection:computerselection};
         
-        return {domElementMaker:domElementMaker};
-})()
+//         let gameBoardArray = [0,1,2,3,4,5,6,7,8];
+
+//         const cacheDom = (() => {
+//             let popupForm = document.getElementById('popupForm'),
+//             playArea = document.getElementById('play-area')
+
+//             return{popupForm:popupForm,playArea:playArea} 
+//         })()
+
+//         const domElementMaker = (tag ,id="" ,cLass= "") => {
+//             let item = document.createElement(tag)
+//             item.id = id;
+//             item.className= cLass;
+//             return item;
+//         }
+
+//         const addDomElements = (array) =>{
+
+//             //3x3 Grid
+//             for(i=0; i < array.length;i++){
+//                 let title = domElementMaker('div', 'block_' + array[i], 'block');
+//                 cacheDom.playArea.append(title);
+//             }
+
+//             // Winner Displays
+//             for(i=1; i < 3;i++){
+//                 let title = domElementMaker('h2', 'winner' + i, 'winner');
+//                 cacheDom.playArea.append(title);
+//             }
+
+//             //Insert Reset button inbetween Winner Displays
+//             let resetButton = domElementMaker('button', 'reset',)
+//             resetButton.innerHTML = "Reset Board";
+//             let winner2 = document.getElementById('winner2');
+//             cacheDom.playArea.insertBefore(resetButton, winner2);
+
+//             //Creating Selections for Winner Tags
+//             let playerSelect = (player, selection) => {
+//                 let playerName = domElementMaker('p');
+//                 let playerselection = domElementMaker('p');
+//                 let score = domElementMaker('p');
+//                 playerName.innerHTML = player;
+//                 playerselection.innerHTML = selection;
+//                 score.innerHTML= 'Score: 0'
+
+//                 return[playerName,playerselection,score]
+//             }
+
+//             //Inserting player Selections into Winner Tags
+//             let playerInsertion = (array, id) => {
+//                 let winner = document.getElementById(id);
+//                 for(i=0;i<array.length;i++){
+//                     winner.append(array[i])
+//                 }
+//             }
+
+//             playerInsertion(playerSelect(selections.player1, selections.playerselection),'winner1')
+//             playerInsertion(playerSelect(selections.player2, selections.computerselection),'winner2')
+            
+//         }
+
+//         addDomElements(gameBoardArray)
+//         return {domElementMaker:domElementMaker};
+// })()
 
     const newGameButton = () => {
 
@@ -77,6 +98,7 @@
             }
         }
 
+        formData.render.openForm();
         bindEvents()
 }
 
@@ -125,11 +147,30 @@
         // Handle Form Submission Data
         function formData() {
             data = [];
-            data.push(cacheDom.playerName.value);
-            render.clearPlayer1Input();
-            data.push(cacheDom.playerCharSelection.checked);
-            data.push(cacheDom.computerSelection.checked);
-            data.push(cacheDom.player2Name.value);
+            if(cacheDom.playerName.value == ""){
+                data.push("Player 1")
+            }else{
+                data.push(cacheDom.playerName.value);
+            }
+
+            if(cacheDom.playerCharSelection.checked == true){
+                data.push("X")
+            }else{
+                data.push("O")
+            }
+
+            if(cacheDom.computerSelection.checked == false){
+                data.push("Computer")
+            }else{
+                data.push(cacheDom.player2Name.value)
+            }
+
+            if(data[1] == "X"){
+                data.push("O")
+            }else{
+                data.push("X")
+            }
+
             console.log(data)
         }    
 
@@ -142,10 +183,10 @@
                 cacheDom.form.style.display = "none";
             }
             const player2NameOpen = () => {
-                cacheDom.formContainer2.style.display = "grid";
+                cacheDom.formContainer2.style.display = "none";
             }
             const player2NameClose = () => {
-                cacheDom.formContainer2.style.display = "none";
+                cacheDom.formContainer2.style.display = "grid";
                 cacheDom.player2Name.value = '';
             }
             const clearPlayer1Input = () => {
@@ -163,7 +204,6 @@
             }
         }
 
-        computerSelectionCheck()
         bindEvents()
         return{render:render ,data:data}
 
@@ -181,4 +221,3 @@
 
 
 })()
-
