@@ -261,4 +261,6 @@ input:checked + .slider:before{
 	color: white;
 }
 
-
+#sumbit-button ,#close-button{
+	margin-top:1em;
+}
