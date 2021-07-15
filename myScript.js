@@ -30,15 +30,15 @@
 
             // Winner Displays
             for(i=1; i < 3;i++){
-                let title = domElementMaker('h2', 'winner' + i, 'winner');
+                let title = domElementMaker('div', 'player' + i + 'Display', 'playerDisplay');
                 cacheDom.playArea.append(title);
             }
 
             //Insert Reset button inbetween Winner Displays
             let resetButton = domElementMaker('button', 'reset',)
             resetButton.innerHTML = "Reset";
-            let winner2 = document.getElementById('winner2');
-            cacheDom.playArea.insertBefore(resetButton, winner2);
+            let player2Display = document.getElementById('player2Display');
+            cacheDom.playArea.insertBefore(resetButton, player2Display);
 
             //Creating Selections for Winner Tags
             let playerSelect = (player, selection) => {
@@ -60,14 +60,38 @@
                 }
             }
 
-            playerInsertion(playerSelect(selections.player1, selections.playerselection),'winner1')
-            playerInsertion(playerSelect(selections.player2, selections.computerselection),'winner2')
+            playerInsertion(playerSelect(selections.player1, selections.playerselection),'player1Display')
+            playerInsertion(playerSelect(selections.player2, selections.computerselection),'player2Display')
             
         }
 
         addDomElements(gameBoardArray)
         return {domElementMaker:domElementMaker};
-}
+
+        // // cache DOM elements
+        // const cacheDom = (() => {
+        //     let popupForm = document.getElementById('popupForm'),
+        //     playArea = document.getElementById('play-area')
+
+        //     return{popupForm:popupForm,playArea:playArea} 
+        // })()
+
+        // // bind events
+        // function bindEvents() {
+        //     // DOM.$someElement.click(handleClick);
+        // }
+        // // handle click events
+        // function handleClick(e) {
+        //     // render(); etc
+        // }
+        // // render DOM
+        // const render = () => {
+        //     // Inserting Round indicator into DOM
+        //     cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
+
+
+        // }
+    }
 
     const newGameButton = (() => {
 
@@ -92,15 +116,21 @@
         // Functions List
         const checkforGrid = () => {
             if (cacheDom.playArea.hasChildNodes()){
-                alert("Game Already Started");
+                removeGrid();
+                formData.render.openForm();
             }else {
                 formData.render.openForm();
             }
         }
 
+        const removeGrid =() =>{
+            while (cacheDom.playArea.lastChild) {
+                cacheDom.playArea.removeChild(cacheDom.playArea.lastChild);
+              }
+        }
         // formData.render.openForm();
         bindEvents()
-})()
+    })()
 
     const formData = (() =>{
 
@@ -213,15 +243,65 @@
         return{render:render}
 
 
-})()
+    })()
+
+    const gameLogic = () =>{
+        // cache DOM elements
+        const cacheDom = (() => {
+            let newButton = document.getElementById('new-button'),
+            playArea = document.getElementById('play-area'),
+            player1Display = document.getElementById('player1Display'),
+            player2Display = document.getElementById('player2Display'),
+            formContainer = document.getElementById('formContainer'),
+            container = document.getElementById('container')
+
+            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player2Display:player2Display, formContainer:formContainer,container:container}
+        })()
+
+        // bind events
+        function bindEvents() {
+            // DOM.$someElement.click(handleClick);
+        }
+        // handle click events
+        function handleClick(e) {
+            // render(); etc
+        }
+        // render DOM
+        const render = () => {
+            // Inserting Round indicator into DOM
+            cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
+
+
+        }
+        // DOM Element Creation
+        const domElementMaker = (tag ,id="" ,cLass= "") => {
+            let item = document.createElement(tag)
+            item.id = id;
+            item.className= cLass;
+            return item;
+        }
+
+        //creating Display Round/Winner element
+        let roundWinnerDisplay = domElementMaker('h2' , 'round-winnerDisplay', 'round-Winner')
+        roundWinnerDisplay.innerHTML= 'Round 1'
+
+        
+        // Register Click Events
+        // window.onclick = e => {
+        //     console.log(e.target.id);
+        // } 
+
+        render()
+    }
+
+    gameBoardDisplay()
+
     // formData.render.openForm()
     
     // When new Player button is Clicked:
     // Board is Generated
     // New Player Form is opened:
     // Form needs to have a place to enter a name and a toggle to show a 2nd player name or computer player
-
-
 
 
 })()
