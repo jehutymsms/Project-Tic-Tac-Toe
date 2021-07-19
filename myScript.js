@@ -20,27 +20,28 @@
             return item;
         }
 
+        // Creation and adding of elements to board
         const addDomElements = (array) =>{
 
             //3x3 Grid
             for(i=0; i < array.length;i++){
-                let title = domElementMaker('div', 'block_' + array[i], 'block');
-                cacheDom.playArea.append(title);
+                let block = domElementMaker('div', 'block_' + array[i], 'block');
+                cacheDom.playArea.append(block);
             }
 
-            // Winner Displays
+            // Player Displays
             for(i=1; i < 3;i++){
-                let title = domElementMaker('div', 'player' + i + 'Display', 'playerDisplay');
-                cacheDom.playArea.append(title);
+                let player = domElementMaker('div', 'player' + i + 'Display', 'playerDisplay');
+                cacheDom.playArea.append(player);
             }
 
-            //Insert Reset button inbetween Winner Displays
+            //Insert Reset button inbetween Player Displays
             let resetButton = domElementMaker('button', 'reset',)
             resetButton.innerHTML = "Reset";
             let player2Display = document.getElementById('player2Display');
             cacheDom.playArea.insertBefore(resetButton, player2Display);
 
-            //Creating Selections for Winner Tags
+            //Creating Text for Player Displays
             let playerSelect = (player, selection) => {
                 let playerName = domElementMaker('p');
                 let playerselection = domElementMaker('p');
@@ -251,28 +252,30 @@
             let newButton = document.getElementById('new-button'),
             playArea = document.getElementById('play-area'),
             player1Display = document.getElementById('player1Display'),
+            player1Selection = player1Display.childNodes[1].innerHTML,
+            player1Score = player1Display.childNodes[2].innerHTML,
             player2Display = document.getElementById('player2Display'),
+            player2Selection = player2Display.childNodes[1].innerHTML,
+            player2Score = player2Display.childNodes[2].innerHTML,
             formContainer = document.getElementById('formContainer'),
             container = document.getElementById('container')
 
-            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player2Display:player2Display, formContainer:formContainer,container:container}
+            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Selection:player1Selection, player1Score:player1Score,  player2Display:player2Display,player2Selection:player2Selection, player2Score:player2Score, formContainer:formContainer,container:container}
         })()
 
         // bind events
         function bindEvents() {
-            // DOM.$someElement.click(handleClick);
+            window.onclick = (e) => {
+                selection(e.target);
+            } 
         }
         // handle click events
         function handleClick(e) {
             // render(); etc
         }
-        // render DOM
-        const render = () => {
-            // Inserting Round indicator into DOM
-            cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
 
 
-        }
+
         // DOM Element Creation
         const domElementMaker = (tag ,id="" ,cLass= "") => {
             let item = document.createElement(tag)
@@ -285,16 +288,118 @@
         let roundWinnerDisplay = domElementMaker('h2' , 'round-winnerDisplay', 'round-Winner')
         roundWinnerDisplay.innerHTML= 'Round 1'
 
-        
-        // Register Click Events
-        // window.onclick = e => {
-        //     console.log(e.target.id);
-        // } 
+    
 
-        render()
+        // Function List
+        const changeTurnIndicator = (player = cacheDom.player1Display) =>{
+            if (player.id == 'player1Display'){
+                player.className = 'playerDisplay turn';
+                player2Display.className = 'playerDisplay';
+            }else{
+                player1Display.className = ' playerDisplay';
+                player2Display.className = ' playerDisplay turn';
+            }
+        }
+
+        const selection = (target) => {
+            if(target.className == 'block' && target.innerHTML == ''){
+                render.enterSelection(turnIndicator(), target);
+                render.player2TurnDisplay();
+                
+            }else{
+                console.log(`${target.id} has already been selected`)
+            }
+        }
+
+        const turnIndicator = () => {
+            if(player1Display.className.includes('turn')){
+                return cacheDom.player1Selection
+            }else{
+                return cacheDom.player2Selection
+            }
+        }
+
+        const checkWin = ( selection = 'X')=>{
+            let gameBoardHTMl = [],
+            grid = cacheDom.playArea.childNodes;
+
+            //Extract HTML from Grid Elements
+            //Add to grid
+            for (i=0; i < grid.length; i++){
+                if(grid[i].className == 'block'){
+                    gameBoardHTMl.push(grid[i].innerHTML);
+                }else{
+                    break
+                }
+            }
+            
+
+            const checkVerticalWin = (selection)=>{
+                let condition = [[0,3,6],[1,4,7],[2,5,8]],
+                win = [];
+                for(const condi of condition){
+                    winList = [];
+                    for(const index of condi){
+                        if(array[index] == selection){
+                            winList.push(array[index])
+                            console.log(winList)
+                                if(winList.length == 3){
+                                    return (console.log('Win'))
+                                }
+                        }else{
+                            winList = [];
+                        }
+                    }
+                }
+            }
+
+            const checkhorizontalWin = (selection)=>{}
+            const checkDiagonalWin = (selection)=>{}
+            
+
+
+
+            
+        }
+        
+
+        changeTurnIndicator()
+        bindEvents()
+
+                // render DOM
+        const render = (() => {
+            // Inserting Round indicator into DOM
+            cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
+
+            const enterSelection = (selection, id) => {
+                id.innerHTML = selection
+            }
+
+            const player1TurnDisplay = () =>{
+                player1Display.className = 'playerDisplay turn';
+                player2Display.className = 'playerDisplay';
+            }
+
+            const player2TurnDisplay = () =>{
+                player1Display.className = 'playerDisplay';
+                player2Display.className = 'playerDisplay turn';
+            }
+
+            // Test Child Node function
+            // Can Get Child nodes as an array of objects
+            // Then Select inner HTML are strings
+            // Use these to set up an array for keeping track of score and who's turn it is
+            // let array = cacheDom.player1Display.childNodes
+            // console.log(typeof(array[0].innerHTML))
+            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay}
+
+
+        })()
+        checkWin();
     }
 
     gameBoardDisplay()
+    gameLogic()
 
     // formData.render.openForm()
     
