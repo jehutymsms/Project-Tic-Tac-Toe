@@ -269,26 +269,23 @@
                 selection(e.target);
             } 
         }
+
         // handle click events
         function handleClick(e) {
             // render(); etc
         }
 
-
-
         // DOM Element Creation
         const domElementMaker = (tag ,id="" ,cLass= "") => {
-            let item = document.createElement(tag)
+            let item = document.createElement(tag);
             item.id = id;
             item.className= cLass;
             return item;
         }
 
-        //creating Display Round/Winner element
+        // creating Display Round/Winner element
         let roundWinnerDisplay = domElementMaker('h2' , 'round-winnerDisplay', 'round-Winner')
-        roundWinnerDisplay.innerHTML= 'Round 1'
-
-    
+        roundWinnerDisplay.innerHTML= 'Round 1';
 
         // Function List
         const changeTurnIndicator = (player = cacheDom.player1Display) =>{
@@ -304,10 +301,9 @@
         const selection = (target) => {
             if(target.className == 'block' && target.innerHTML == ''){
                 render.enterSelection(turnIndicator(), target);
-                render.player2TurnDisplay();
                 
-            }else{
-                console.log(`${target.id} has already been selected`)
+            }else if (target.className == 'block'){
+                alert(`Selection present please Select another block`)
             }
         }
 
@@ -323,8 +319,8 @@
             let gameBoardHTMl = [],
             grid = cacheDom.playArea.childNodes;
 
-            //Extract HTML from Grid Elements
-            //Add to grid
+            // Extract HTML from Grid Elements
+            // Add to grid
             for (i=0; i < grid.length; i++){
                 if(grid[i].className == 'block'){
                     gameBoardHTMl.push(grid[i].innerHTML);
@@ -332,36 +328,50 @@
                     break
                 }
             }
-            
-
-            const checkVerticalWin = (selection)=>{
-                let condition = [[0,3,6],[1,4,7],[2,5,8]],
-                win = [];
+            //Function List
+            const win = (condition, gridSelection, selection) => {
+                let winList = [];
                 for(const condi of condition){
                     winList = [];
                     for(const index of condi){
-                        if(array[index] == selection){
-                            winList.push(array[index])
-                            console.log(winList)
+                        if(gridSelection[index] == selection){
+                            winList.push(gridSelection[index])
                                 if(winList.length == 3){
-                                    return (console.log('Win'))
+                                    return 'Win';
                                 }
                         }else{
                             winList = [];
                         }
                     }
                 }
+                return 'Loss'
+            }
+            const checkVerticalWin = (selection, gridselection)=>{
+                let condition = [[0,3,6],[1,4,7],[2,5,8]];
+                return win(condition, gridselection, selection);
+            }
+            const checkhorizontalWin = (selection, gridselection)=>{
+                let condition = [[0,1,2],[3,4,5],[6,7,8]];
+                return win(condition, gridselection, selection);
+            }
+            const checkDiagonalWin = (selection, gridselection)=>{
+                let condition = [[0,4,8],[2,4,6]];
+                return win(condition, gridselection, selection);
             }
 
-            const checkhorizontalWin = (selection)=>{}
-            const checkDiagonalWin = (selection)=>{}
-            
-
-
-
+            // Win checker Statements
+            if(checkVerticalWin(selection) == 'Win'){
+                return "Win";
+            }else if(checkhorizontalWin(selection) == 'Win'){
+                return "Win";
+            }else if (checkDiagonalWin(selection) == 'Win'){
+                return "Win";
+            }else{
+                return "Loss"
+            }
             
         }
-        
+
 
         changeTurnIndicator()
         bindEvents()
@@ -394,8 +404,8 @@
             return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay}
 
 
-        })()
-        checkWin();
+        }) ()
+
     }
 
     gameBoardDisplay()
