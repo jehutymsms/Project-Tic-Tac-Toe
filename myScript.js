@@ -252,27 +252,24 @@
             let newButton = document.getElementById('new-button'),
             playArea = document.getElementById('play-area'),
             player1Display = document.getElementById('player1Display'),
+            player1Name = player1Display.childNodes[0].innerHTML,
             player1Selection = player1Display.childNodes[1].innerHTML,
             player1Score = player1Display.childNodes[2].innerHTML,
             player2Display = document.getElementById('player2Display'),
+            player2Name = player2Display.childNodes[0].innerHTML,
             player2Selection = player2Display.childNodes[1].innerHTML,
             player2Score = player2Display.childNodes[2].innerHTML,
             formContainer = document.getElementById('formContainer'),
             container = document.getElementById('container')
 
-            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Selection:player1Selection, player1Score:player1Score,  player2Display:player2Display,player2Selection:player2Selection, player2Score:player2Score, formContainer:formContainer,container:container}
+            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,  player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score, formContainer:formContainer,container:container}
         })()
 
         // bind events
         function bindEvents() {
-            window.onclick = (e) => {
+            cacheDom.playArea.onclick = (e) => {
                 selection(e.target);
             } 
-        }
-
-        // handle click events
-        function handleClick(e) {
-            // render(); etc
         }
 
         // DOM Element Creation
@@ -283,18 +280,13 @@
             return item;
         }
 
-        // creating Display Round/Winner element
-        let roundWinnerDisplay = domElementMaker('h2' , 'round-winnerDisplay', 'round-Winner')
-        roundWinnerDisplay.innerHTML= 'Round 1';
-
+    
         // Function List
         const changeTurnIndicator = (player = cacheDom.player1Display) =>{
             if (player.id == 'player1Display'){
-                player.className = 'playerDisplay turn';
-                player2Display.className = 'playerDisplay';
+                render.player1TurnDisplay()
             }else{
-                player1Display.className = ' playerDisplay';
-                player2Display.className = ' playerDisplay turn';
+                render.player2TurnDisplay()
             }
         }
 
@@ -309,9 +301,9 @@
 
         const turnIndicator = () => {
             if(player1Display.className.includes('turn')){
-                return cacheDom.player1Selection
+                return cacheDom.player1Selection;
             }else{
-                return cacheDom.player2Selection
+                return cacheDom.player2Selection;
             }
         }
 
@@ -358,26 +350,42 @@
                 let condition = [[0,4,8],[2,4,6]];
                 return win(condition, gridselection, selection);
             }
-
             // Win checker Statements
-            if(checkVerticalWin(selection) == 'Win'){
+            if(checkVerticalWin(selection,gameBoardHTMl) == 'Win'){
                 return "Win";
-            }else if(checkhorizontalWin(selection) == 'Win'){
+            }else if(checkhorizontalWin(selection,gameBoardHTMl) == 'Win'){
                 return "Win";
-            }else if (checkDiagonalWin(selection) == 'Win'){
+            }else if (checkDiagonalWin(selection,gameBoardHTMl) == 'Win'){
                 return "Win";
             }else{
                 return "Loss"
             }
+
             
         }
 
+        const gameStart = (player1selection, player1score, player2selection, player2score) =>{
+            bindEvents();
+            changeTurnIndicator();
 
-        changeTurnIndicator()
-        bindEvents()
+            const myFunction = () =>{
+                ;
+            }
 
-                // render DOM
+            cacheDom.playArea.addEventListener('click', changeTurnIndicator());
+            
+
+        }
+
+
+
+        // render DOM
         const render = (() => {
+
+            // creating Display Round Indicator element
+            let roundWinnerDisplay = domElementMaker('h2' ,     'round-winnerDisplay', 'round-Winner')
+            roundWinnerDisplay.innerHTML= 'Round 1';
+
             // Inserting Round indicator into DOM
             cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
 
@@ -386,13 +394,17 @@
             }
 
             const player1TurnDisplay = () =>{
-                player1Display.className = 'playerDisplay turn';
-                player2Display.className = 'playerDisplay';
+                player1Display.classList.add('playerDisplay turn');
+                player2Display.classList.renmove('turn');
             }
 
             const player2TurnDisplay = () =>{
-                player1Display.className = 'playerDisplay';
-                player2Display.className = 'playerDisplay turn';
+                player1Display.classList.toggle('playerDisplay turn');
+                player2Display.classList.toggle('playerDisplay');
+            }
+
+            const roundIndicatorUpdate = (round) =>{
+                roundWinnerDisplay.innerHTML = `Round ${round}`
             }
 
             // Test Child Node function
@@ -401,11 +413,15 @@
             // Use these to set up an array for keeping track of score and who's turn it is
             // let array = cacheDom.player1Display.childNodes
             // console.log(typeof(array[0].innerHTML))
-            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay}
+            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundIndicatorUpdate:roundIndicatorUpdate}
 
 
         }) ()
-
+        gameStart()
+        
+        checkWin()
+        render.player1TurnDisplay()
+        return {gameStart:gameStart}
     }
 
     gameBoardDisplay()
