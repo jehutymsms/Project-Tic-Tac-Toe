@@ -283,17 +283,16 @@
     
         // Function List
         const changeTurnIndicator = (player = cacheDom.player1Display) =>{
-            if (player.id == 'player1Display'){
-                render.player1TurnDisplay()
+            if (player.classList.length >1){
+                render.player2TurnDisplay();
             }else{
-                render.player2TurnDisplay()
+                render.player1TurnDisplay();
             }
         }
 
         const selection = (target) => {
             if(target.className == 'block' && target.innerHTML == ''){
                 render.enterSelection(turnIndicator(), target);
-                
             }else if (target.className == 'block'){
                 alert(`Selection present please Select another block`)
             }
@@ -368,12 +367,17 @@
             bindEvents();
             changeTurnIndicator();
 
-            const myFunction = () =>{
-                ;
-            }
+            let observer = new MutationObserver(mutationRecords => {
+                console.log(mutationRecords); // console.log(the changes)
+                });
 
-            cacheDom.playArea.addEventListener('click', changeTurnIndicator());
-            
+                // observe everything except attributes
+                observer.observe(cacheDom.playArea, {
+                childList: true, // observe direct children
+                subtree: true, // and lower descendants too
+                characterData: true, // pass old data to callback
+                addedNodes:true
+                });
 
         }
 
@@ -390,21 +394,24 @@
             cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
 
             const enterSelection = (selection, id) => {
-                id.innerHTML = selection
+                id.innerHTML = selection;
             }
 
             const player1TurnDisplay = () =>{
-                player1Display.classList.add('playerDisplay turn');
-                player2Display.classList.renmove('turn');
+                player1Display.classList.add('turn');
+                player2Display.classList.remove('turn');
             }
 
             const player2TurnDisplay = () =>{
-                player1Display.classList.toggle('playerDisplay turn');
-                player2Display.classList.toggle('playerDisplay');
+                player1Display.classList.remove('turn');
+                player2Display.classList.add('turn');
             }
 
-            const roundIndicatorUpdate = (round) =>{
-                roundWinnerDisplay.innerHTML = `Round ${round}`
+            const roundUpdate = (round) =>{
+                roundWinnerDisplay.innerHTML = `Round ${round}`;
+            }
+            const winnerDisplayUpdate = (string) =>{
+                roundWinnerDisplay.innerHTML = string;
             }
 
             // Test Child Node function
@@ -413,14 +420,15 @@
             // Use these to set up an array for keeping track of score and who's turn it is
             // let array = cacheDom.player1Display.childNodes
             // console.log(typeof(array[0].innerHTML))
-            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundIndicatorUpdate:roundIndicatorUpdate}
+            // const roundIndicatorUpdate = (string) =>{}
 
+                
+            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundUpdate:roundUpdate, winnerDisplayUpdate:winnerDisplayUpdate}
 
         }) ()
         gameStart()
         
         checkWin()
-        render.player1TurnDisplay()
         return {gameStart:gameStart}
     }
 
