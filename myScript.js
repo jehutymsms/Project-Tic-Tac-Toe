@@ -69,29 +69,7 @@
         addDomElements(gameBoardArray)
         return {domElementMaker:domElementMaker};
 
-        // // cache DOM elements
-        // const cacheDom = (() => {
-        //     let popupForm = document.getElementById('popupForm'),
-        //     playArea = document.getElementById('play-area')
 
-        //     return{popupForm:popupForm,playArea:playArea} 
-        // })()
-
-        // // bind events
-        // function bindEvents() {
-        //     // DOM.$someElement.click(handleClick);
-        // }
-        // // handle click events
-        // function handleClick(e) {
-        //     // render(); etc
-        // }
-        // // render DOM
-        // const render = () => {
-        //     // Inserting Round indicator into DOM
-        //     cacheDom.container.insertBefore(roundWinnerDisplay, cacheDom.formContainer);
-
-
-        // }
     }
 
     const newGameButton = (() => {
@@ -99,9 +77,10 @@
         // cache DOM elements
         const cacheDom = (() => {
             let newButton = document.getElementById('new-button'),
-            playArea = document.getElementById('play-area');
+            playArea = document.getElementById('play-area'),
+            container = document.getElementById('container');
 
-            return{newButton:newButton, playArea:playArea}
+            return{newButton:newButton, playArea:playArea, container:container}
         })()
 
 
@@ -118,6 +97,7 @@
         const checkforGrid = () => {
             if (cacheDom.playArea.hasChildNodes()){
                 removeGrid();
+                removeRoundDisplay();
                 formData.render.openForm();
             }else {
                 formData.render.openForm();
@@ -129,7 +109,12 @@
                 cacheDom.playArea.removeChild(cacheDom.playArea.lastChild);
               }
         }
-        // formData.render.openForm();
+        const removeRoundDisplay =() =>{
+            let roundIndicator = document.getElementById('round-WinnerDisplay');
+            console.log(roundIndicator)
+            // cacheDom.roundIndicator.remove()
+        }
+        
         bindEvents()
     })()
 
@@ -203,6 +188,7 @@
             render.clearInput();
             render.player2NameClose();
             gameBoardDisplay(...data);
+            gameLogic();
             console.log(data)
             return{data:data};
         };    
@@ -357,31 +343,76 @@
             }else if (checkDiagonalWin(selection,gameBoardHTMl) == 'Win'){
                 return "Win";
             }else{
-                return "Loss"
+                return "Loss";
             }
 
             
         }
 
-        const gameStart = (player1selection, player1score, player2selection, player2score) =>{
+        const gameProgress = () =>{
             bindEvents();
             changeTurnIndicator();
 
-            let observer = new MutationObserver(mutationRecords => {
-                console.log(mutationRecords); // console.log(the changes)
+            //Observe Changes made on the Gameboard
+            let observer = new MutationObserver(mutations => {
+                if(mutations[0].addedNodes[0]== undefined){
+                    observer.disconnect();
+                }else{
+                    if (checkWin(mutations[0].addedNodes[0].textContent) == 'Win'){
+                        if(cacheDom.player1Selection == mutations[0].addedNodes[0].textContent){
+                            observer.disconnect();
+                            alert(`${cacheDom.player1Name} Won!!!!`)
+                        }else{
+                            observer.disconnect();
+                            alert(`${cacheDom.player2Name} Won!!!!`)
+                        }
+                    }else if(boardFull.check()=='Good'){
+                        changeTurnIndicator();
+                        console.log(mutations[0].addedNodes[0].textContent)
+                    }else{
+                        alert(boardFull.check());
+                    }
+                }
                 });
 
-                // observe everything except attributes
-                observer.observe(cacheDom.playArea, {
-                childList: true, // observe direct children
-                subtree: true, // and lower descendants too
-                characterData: true, // pass old data to callback
-                addedNodes:true
-                });
+            // observe if HTML is added to grid
+            observer.observe(cacheDom.playArea, {
+            childList: true,
+            subtree: true 
+            });
 
         }
 
+        const boardFull = (() =>{
+            let board = [];
 
+            const check = () =>{
+                if (board.length == 9){
+                    observer.disconnect();
+                    return 'Board Full Resetting'
+                }else{
+                    return 'Good'
+                }
+            };
+
+            // 
+            let observer = new MutationObserver(mutations => {
+                if(mutations[0].addedNodes[0]== undefined){
+                    observer.disconnect();
+                }else{
+                    board.push(mutations[0].addedNodes[0].textContent)
+                }
+                
+                });
+
+            observer.observe(cacheDom.playArea, {
+                childList: true,
+                subtree: true 
+            });
+
+            
+            return {check:check}
+        })()
 
         // render DOM
         const render = (() => {
@@ -426,21 +457,17 @@
             return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundUpdate:roundUpdate, winnerDisplayUpdate:winnerDisplayUpdate}
 
         }) ()
-        gameStart()
+        gameProgress()
         
-        checkWin()
-        return {gameStart:gameStart}
+        return {gameProgress:gameProgress}
+    }
+
+    const resetGameButton = () => {
+        let resetButton = document.getElementById('reset'),
+            playArea = document.getElementById('play-area');
     }
 
     gameBoardDisplay()
     gameLogic()
-
-    // formData.render.openForm()
-    
-    // When new Player button is Clicked:
-    // Board is Generated
-    // New Player Form is opened:
-    // Form needs to have a place to enter a name and a toggle to show a 2nd player name or computer player
-
 
 })()
