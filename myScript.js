@@ -87,7 +87,7 @@
         // Bind events
         const bindEvents = () =>{
             cacheDom.newButton.addEventListener('click' ,  () => {
-                checkforGrid()
+                checkforGrid();
             })
 
             
@@ -111,8 +111,7 @@
         }
         const removeRoundDisplay =() =>{
             let roundIndicator = document.getElementById('round-WinnerDisplay');
-            console.log(roundIndicator)
-            // cacheDom.roundIndicator.remove()
+            console.log(roundIndicator);
         }
         
         bindEvents()
@@ -463,11 +462,19 @@
     }
 
     const resetGameButton = () => {
+        // cache DOM elements
         let resetButton = document.getElementById('reset'),
             playArea = document.getElementById('play-area');
+
+        // bind events
+
+        // render DOM
+
+        // Function List
+
     }
 
-    gameBoardDisplay()
-    gameLogic()
+    // gameBoardDisplay()
+    // gameLogic()
 
 })()
