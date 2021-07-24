@@ -264,3 +264,18 @@ input:checked + .slider:before{
 #sumbit-button ,#close-button{
 	margin-top:1em;
 }
+
+
+.modal{
+	position: fixed;
+	top:50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border: 0.15em solid black;
+	border-radius: 0.6em;
+	z-index: 10;
+	background-color: #242582;
+	color: white;
+	width: 20em;
+	max-width: 80%;
+}
