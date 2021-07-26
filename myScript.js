@@ -133,8 +133,6 @@
             computerSelection = document.getElementById('playAgainstComp'),
             myFormData = document.getElementById('player1Form')
 
-            
-
             return{formContainer:formContainer, sumbmitButton:sumbmitButton, playerName:playerName, playerCharSelection:playerCharSelection, computerSelection:computerSelection, player2Name:player2Name, form:form, closeButton:closeButton, formContainer2:formContainer2,computerSelectSwitch:computerSelectSwitch, myFormData:myFormData} 
         })()
 
@@ -461,18 +459,73 @@
         return {gameProgress:gameProgress}
     }
 
-    const resetGameButton = () => {
+    const resetGameButton = (() => {
         // cache DOM elements
+        const cacheDom = (() =>{
         let resetButton = document.getElementById('reset'),
-            playArea = document.getElementById('play-area');
+            playArea = document.getElementById('play-area'),
+            openModalButons = document.querySelectorAll('[data-modal-target]'),
+            closeModalButons = document.querySelectorAll('[data-close-button]'),
+            overlay = document.getElementById('overlay');
+
+            return{resetButton:resetButton,playArea:playArea,openModalButons:openModalButons,closeModalButons:closeModalButons,overlay:overlay}
+        })()
 
         // bind events
+        cacheDom.openModalButons.forEach(button =>{
+            button.addEventListener('click', ()=> {
+                const modal = document.querySelector(button.dataset.modalTarget);
+                openModal(modal);
+            })
+        })
+
+        cacheDom.overlay.addEventListener('click', ()=> {
+            const modals = document.querySelectorAll('.modal.active');
+            modals.forEach(modal =>{
+                closeModal(modal);
+            })
+            
+        })
+
+        cacheDom.closeModalButons.forEach(button =>{
+            button.addEventListener('click', ()=> {
+                const modal = button.closest('.modal')
+                closeModal(modal);
+            })
+        })
 
         // render DOM
+        const render = (() =>{
+
+            const modalShow = (modal) =>{
+                modal.classList.add('active');
+            }
+            const modalHide = (modal) =>{
+                modal.classList.remove('active');
+            }
+            const overlayShow = () =>{
+                cacheDom.overlay.classList.add('active');
+            }
+            const overlayHide = () =>{
+                cacheDom.overlay.classList.remove('active');
+            }
+
+            return{modalShow:modalShow,modalHide:modalHide,overlayShow:overlayShow,overlayHide:overlayHide}
+        })()
 
         // Function List
+        const openModal = (modal)=>{
+            if(modal ==null) return
+            render.modalShow(modal);
+            render.overlayShow();
+        }
 
-    }
+        const closeModal = (modal)=>{
+            if(modal ==null) return
+            render.modalHide(modal);
+            render.overlayHide();
+        }
+    })()
 
     // gameBoardDisplay()
     // gameLogic()
