@@ -36,8 +36,9 @@
             }
 
             //Insert Reset button inbetween Player Displays
-            let resetButton = domElementMaker('button', 'reset',)
+            let resetButton = domElementMaker('button', 'reset','resetMenu')
             resetButton.innerHTML = "Reset";
+            resetButton.setAttribute("data-modal-target", "#modal")
             let player2Display = document.getElementById('player2Display');
             cacheDom.playArea.insertBefore(resetButton, player2Display);
 
@@ -459,35 +460,45 @@
         return {gameProgress:gameProgress}
     }
 
-    const resetGameButton = (() => {
+    const resetGameButton = () => {
         // cache DOM elements
         const cacheDom = (() =>{
         let resetButton = document.getElementById('reset'),
             playArea = document.getElementById('play-area'),
+            block = document.querySelectorAll('.block'),
             openModalButton = document.querySelector('[data-modal-target]'),
-            closeModalButton = document.querySelector('[data-close-button]'),
+            closeModalButton = document.querySelector('[data-close-button]'), resetBoard = document.getElementById('resetBoard'),restartGame = document.getElementById('restartGame'),
             overlay = document.getElementById('overlay'),
             openModalData = document.querySelector(openModalButton.dataset.modalTarget),
             closeModalTargets = closeModalButton.closest('.modal');
 
-            return{resetButton:resetButton,playArea:playArea,openModalButton:openModalButton,closeModalButton:closeModalButton,overlay:overlay,openModalData:openModalData,closeModalTargets:closeModalTargets}
+            return{resetButton:resetButton,playArea:playArea,block:block,openModalButton:openModalButton,closeModalButton:closeModalButton,resetBoard:resetBoard,restartGame:restartGame,overlay:overlay,openModalData:openModalData,closeModalTargets:closeModalTargets}
         })()
 
         // bind events
-        cacheDom.openModalButton.addEventListener('click', ()=> {
-            openModal(cacheDom.openModalData);
-        })
+        const bindEvents = (() =>{
+            cacheDom.openModalButton.addEventListener('click', ()=> {
+                openModal(cacheDom.openModalData);
+            })
 
-        cacheDom.overlay.addEventListener('click', ()=> {
-            const modals = document.querySelectorAll('.modal.active')
-            modals.forEach(modal =>{
-                closeModal(modal);
-            })  
-        })
+            cacheDom.overlay.addEventListener('click', ()=> {
+                const modals = document.querySelectorAll('.modal.active')
+                modals.forEach(modal =>{
+                    closeModal(modal);
+                })  
+            })
 
-        cacheDom.closeModalButton.addEventListener('click', ()=> {
-            closeModal(cacheDom.closeModalTargets);
-        })
+            cacheDom.closeModalButton.addEventListener('click', ()=> {
+                closeModal(cacheDom.closeModalTargets);
+            })
+
+            cacheDom.resetBoard.addEventListener('click' , ()=>{
+                closeModal(cacheDom.closeModalTargets);
+                boardClear();
+
+            })
+
+        })()
 
         // render DOM
         const render = (() =>{
@@ -504,8 +515,12 @@
             const overlayHide = () =>{
                 cacheDom.overlay.classList.remove('active');
             }
+            const clearHTML = (element) =>{
+                element.innerHTML = ""
+            }
 
-            return{modalShow:modalShow,modalHide:modalHide,overlayShow:overlayShow,overlayHide:overlayHide}
+
+            return{modalShow:modalShow,modalHide:modalHide,overlayShow:overlayShow,overlayHide:overlayHide,clearHTML:clearHTML}
         })()
 
         // Function List
@@ -520,9 +535,17 @@
             render.modalHide(modal);
             render.overlayHide();
         }
-    })()
 
-    // gameBoardDisplay()
-    // gameLogic()
+        const boardClear = () =>{
+            cacheDom.block.forEach(element => {
+                render.clearHTML(element);
+            })
+            
+        }
+    }
+
+    gameBoardDisplay()
+    gameLogic()
+    resetGameButton()
 
 })()
