@@ -110,8 +110,8 @@
               }
         }
         const removeRoundDisplay =() =>{
-            let roundIndicator = document.getElementById('round-WinnerDisplay');
-            console.log(roundIndicator);
+            let roundIndicator = document.getElementById('round-winnerDisplay');
+            roundIndicator.parentNode.removeChild(roundIndicator);
         }
         
         bindEvents()
@@ -464,34 +464,29 @@
         const cacheDom = (() =>{
         let resetButton = document.getElementById('reset'),
             playArea = document.getElementById('play-area'),
-            openModalButons = document.querySelectorAll('[data-modal-target]'),
-            closeModalButons = document.querySelectorAll('[data-close-button]'),
-            overlay = document.getElementById('overlay');
+            openModalButton = document.querySelector('[data-modal-target]'),
+            closeModalButton = document.querySelector('[data-close-button]'),
+            overlay = document.getElementById('overlay'),
+            openModalData = document.querySelector(openModalButton.dataset.modalTarget),
+            closeModalTargets = closeModalButton.closest('.modal');
 
-            return{resetButton:resetButton,playArea:playArea,openModalButons:openModalButons,closeModalButons:closeModalButons,overlay:overlay}
+            return{resetButton:resetButton,playArea:playArea,openModalButton:openModalButton,closeModalButton:closeModalButton,overlay:overlay,openModalData:openModalData,closeModalTargets:closeModalTargets}
         })()
 
         // bind events
-        cacheDom.openModalButons.forEach(button =>{
-            button.addEventListener('click', ()=> {
-                const modal = document.querySelector(button.dataset.modalTarget);
-                openModal(modal);
-            })
+        cacheDom.openModalButton.addEventListener('click', ()=> {
+            openModal(cacheDom.openModalData);
         })
 
         cacheDom.overlay.addEventListener('click', ()=> {
-            const modals = document.querySelectorAll('.modal.active');
+            const modals = document.querySelectorAll('.modal.active')
             modals.forEach(modal =>{
                 closeModal(modal);
-            })
-            
+            })  
         })
 
-        cacheDom.closeModalButons.forEach(button =>{
-            button.addEventListener('click', ()=> {
-                const modal = button.closest('.modal')
-                closeModal(modal);
-            })
+        cacheDom.closeModalButton.addEventListener('click', ()=> {
+            closeModal(cacheDom.closeModalTargets);
         })
 
         // render DOM
