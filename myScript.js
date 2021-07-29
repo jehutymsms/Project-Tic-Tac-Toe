@@ -116,6 +116,7 @@
         }
         
         bindEvents()
+        return{removeGrid:removeGrid,removeRoundDisplay:removeRoundDisplay}
     })()
 
     const formData = (() =>{
@@ -187,7 +188,7 @@
             render.player2NameClose();
             gameBoardDisplay(...data);
             gameLogic();
-            console.log(data)
+            resetGameButton()
             return{data:data};
         };    
 
@@ -225,7 +226,7 @@
         }
 
         bindEvents()
-        return{render:render}
+        return{render:render, processFormData:processFormData}
 
 
     })()
@@ -366,7 +367,6 @@
                         }
                     }else if(boardFull.check()=='Good'){
                         changeTurnIndicator();
-                        console.log(mutations[0].addedNodes[0].textContent)
                     }else{
                         alert(boardFull.check());
                     }
@@ -416,7 +416,7 @@
         const render = (() => {
 
             // creating Display Round Indicator element
-            let roundWinnerDisplay = domElementMaker('h2' ,     'round-winnerDisplay', 'round-Winner')
+            let roundWinnerDisplay = domElementMaker('h2' , 'round-winnerDisplay', 'round-Winner')
             roundWinnerDisplay.innerHTML= 'Round 1';
 
             // Inserting Round indicator into DOM
@@ -467,7 +467,7 @@
             playArea = document.getElementById('play-area'),
             block = document.querySelectorAll('.block'),
             openModalButton = document.querySelector('[data-modal-target]'),
-            closeModalButton = document.querySelector('[data-close-button]'), resetBoard = document.getElementById('resetBoard'),restartGame = document.getElementById('restartGame'),
+            closeModalButton = document.querySelector('[data-close-button]'), resetBoard = document.getElementById('resetBoard'), restartGame = document.getElementById('restartGame'),
             overlay = document.getElementById('overlay'),
             openModalData = document.querySelector(openModalButton.dataset.modalTarget),
             closeModalTargets = closeModalButton.closest('.modal');
@@ -495,7 +495,9 @@
             cacheDom.resetBoard.addEventListener('click' , ()=>{
                 closeModal(cacheDom.closeModalTargets);
                 boardClear();
-
+                newGameButton.removeGrid();
+                newGameButton.removeRoundDisplay();
+                formData.processFormData();
             })
 
         })()
@@ -544,8 +546,5 @@
         }
     }
 
-    gameBoardDisplay()
-    gameLogic()
-    resetGameButton()
 
 })()
