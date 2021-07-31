@@ -46,7 +46,7 @@
             let playerSelect = (player, selection) => {
                 let playerName = domElementMaker('p');
                 let playerselection = domElementMaker('p');
-                let score = domElementMaker('p');
+                let score = domElementMaker('p',player);
                 playerName.innerHTML = player;
                 playerselection.innerHTML = selection;
                 score.innerHTML= 'Score: 0'
@@ -89,6 +89,9 @@
         const bindEvents = () =>{
             cacheDom.newButton.addEventListener('click' ,  () => {
                 checkforGrid();
+                // if(observer.disconnect()==undefined)return;
+                //     observer.disconnect();
+                
             })
 
             
@@ -240,14 +243,19 @@
             player1Name = player1Display.childNodes[0].innerHTML,
             player1Selection = player1Display.childNodes[1].innerHTML,
             player1Score = player1Display.childNodes[2].innerHTML,
+            player1scorechange = document.getElementById(player1Display.childNodes[2].id),
             player2Display = document.getElementById('player2Display'),
             player2Name = player2Display.childNodes[0].innerHTML,
             player2Selection = player2Display.childNodes[1].innerHTML,
             player2Score = player2Display.childNodes[2].innerHTML,
+            player2scorechange = document.getElementById(player2Display.childNodes[2].id),
             formContainer = document.getElementById('formContainer'),
-            container = document.getElementById('container')
+            container = document.getElementById('container'),
+            gridArea = document.getElementsByClassName('block')
 
-            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,  player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score, formContainer:formContainer,container:container}
+
+            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,player1scorechange:player1scorechange,player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score,
+            player2scorechange:player2scorechange,formContainer:formContainer,container:container,gridArea:gridArea}
         })()
 
         // bind events
@@ -267,13 +275,13 @@
 
     
         // Function List
-        const changeTurnIndicator = (player = cacheDom.player1Display) =>{
+        const changeTurnIndicator = (player = cacheDom.player1Display) => {
             if (player.classList.length >1){
                 render.player2TurnDisplay();
             }else{
                 render.player1TurnDisplay();
             }
-        }
+        };
 
         const selection = (target) => {
             if(target.className == 'block' && target.innerHTML == ''){
@@ -281,7 +289,7 @@
             }else if (target.className == 'block'){
                 alert(`Selection present please Select another block`)
             }
-        }
+        };
 
         const turnIndicator = () => {
             if(player1Display.className.includes('turn')){
@@ -289,7 +297,7 @@
             }else{
                 return cacheDom.player2Selection;
             }
-        }
+        };
 
         const checkWin = ( selection = 'X')=>{
             let gameBoardHTMl = [],
@@ -346,9 +354,9 @@
             }
 
             
-        }
+        };
 
-        const gameProgress = () =>{
+        const gameProgress = () => {
             bindEvents();
             changeTurnIndicator();
 
@@ -359,11 +367,19 @@
                 }else{
                     if (checkWin(mutations[0].addedNodes[0].textContent) == 'Win'){
                         if(cacheDom.player1Selection == mutations[0].addedNodes[0].textContent){
-                            observer.disconnect();
-                            alert(`${cacheDom.player1Name} Won!!!!`)
+                            // observer.disconnect();
+                            alert(`${cacheDom.player1Name} Won Round!`);
+                            boardClear();
+                            if(checkScore(1) == 'Win'){
+                                alert(`${cacheDom.player1Name} Won Game!!!`)
+                            }
                         }else{
-                            observer.disconnect();
-                            alert(`${cacheDom.player2Name} Won!!!!`)
+                            // observer.disconnect();
+                            alert(`${cacheDom.player2Name} Won Round!`);
+                            boardClear();
+                            if(checkScore(2) == 'Win'){
+                                alert(`${cacheDom.player1Name} Won Game!!!`)
+                            }
                         }
                     }else if(boardFull.check()=='Good'){
                         changeTurnIndicator();
@@ -379,9 +395,9 @@
             subtree: true 
             });
 
-        }
+        };
 
-        const boardFull = (() =>{
+        const boardFull = (() => {
             let board = [];
 
             const check = () =>{
@@ -410,7 +426,42 @@
 
             
             return {check:check}
-        })()
+        })();
+
+        const checkScore = (playerNumber) => {
+            if (playerNumber == 1){
+                let score = parseInt(cacheDom.player1Score.slice(-1));
+                if(score >=2){
+                    return 'Win';
+                }else{
+                    render.scoreChange(playerNumber, score)
+                    return'Continue';
+                }
+            }else{
+                let score = parseInt(cacheDom.player2Score.slice(-1));
+                if(score >=2){
+                    return 'Win';
+                }else{
+                    render.scoreChange(playerNumber, score);
+                    return'Continue';
+                }
+            }
+            
+            // if(score >= 2){
+            //     return 'Win'
+            // }else{
+
+            // }
+        };
+
+        const boardClear = () =>{
+            for(let element of cacheDom.gridArea){
+                render.clearHTML(element);
+            }
+        }
+
+        
+        
 
         // render DOM
         const render = (() => {
@@ -443,16 +494,21 @@
                 roundWinnerDisplay.innerHTML = string;
             }
 
-            // Test Child Node function
-            // Can Get Child nodes as an array of objects
-            // Then Select inner HTML are strings
-            // Use these to set up an array for keeping track of score and who's turn it is
-            // let array = cacheDom.player1Display.childNodes
-            // console.log(typeof(array[0].innerHTML))
-            // const roundIndicatorUpdate = (string) =>{}
+            const scoreChange = (player, score) =>{
+                if (player == 1){
+                    cacheDom.player1scorechange.innerHTML = `Score: ${score + 1}`
+                }else{
+                    cacheDom.player2scorechange.innerHTML = `Score: ${score + 1}`
+                }
+            }
 
-                
-            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundUpdate:roundUpdate, winnerDisplayUpdate:winnerDisplayUpdate}
+            const clearHTML = (element) =>{
+                element.innerHTML = ""
+            }
+            
+            console.log(cacheDom.gridArea)
+
+            return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundUpdate:roundUpdate, winnerDisplayUpdate:winnerDisplayUpdate, scoreChange:scoreChange,clearHTML:clearHTML}
 
         }) ()
         gameProgress()
