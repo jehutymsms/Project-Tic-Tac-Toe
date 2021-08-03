@@ -88,10 +88,15 @@
         // Bind events
         const bindEvents = () =>{
             cacheDom.newButton.addEventListener('click' ,  () => {
-                checkforGrid();
-                // if(observer.disconnect()==undefined)return;
-                //     observer.disconnect();
-                
+
+                try {
+                    observer.disconnect();
+                    checkforGrid();
+                  }
+                  catch(err) {
+                    checkforGrid();
+                  }
+
             })
 
             
@@ -178,7 +183,11 @@
             if(!cacheDom.computerSelection.checked){
                 data.push("Computer");
             }else{
-                data.push(cacheDom.player2Name.value)
+                if(cacheDom.playerName.value == ""){
+                    data.push("Player 2");
+                }else{
+                    data.push(cacheDom.playerName.value);
+                };
             };
 
             if(data[1] == "X"){
@@ -257,6 +266,10 @@
             return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,player1scorechange:player1scorechange,player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score,
             player2scorechange:player2scorechange,formContainer:formContainer,container:container,gridArea:gridArea}
         })()
+
+        //Variables 
+        let playerScores = {player1:0, player2:0},
+        board = [];
 
         // bind events
         function bindEvents() {
@@ -363,28 +376,33 @@
             //Observe Changes made on the Gameboard
             let observer = new MutationObserver(mutations => {
                 if(mutations[0].addedNodes[0]== undefined){
-                    observer.disconnect();
+                      ;
                 }else{
                     if (checkWin(mutations[0].addedNodes[0].textContent) == 'Win'){
                         if(cacheDom.player1Selection == mutations[0].addedNodes[0].textContent){
-                            // observer.disconnect();
                             alert(`${cacheDom.player1Name} Won Round!`);
+                            playerScores.player1 += 1;
+                            render.scoreChange(1,playerScores.player1);
                             boardClear();
                             if(checkScore(1) == 'Win'){
-                                alert(`${cacheDom.player1Name} Won Game!!!`)
+                                alert(`${cacheDom.player1Name} Won Game!!!`);
+                                scoreClear();
                             }
                         }else{
-                            // observer.disconnect();
                             alert(`${cacheDom.player2Name} Won Round!`);
+                            playerScores.player2 += 1;
+                            render.scoreChange(2,playerScores.player2);
                             boardClear();
                             if(checkScore(2) == 'Win'){
                                 alert(`${cacheDom.player1Name} Won Game!!!`)
+                                scoreClear();
                             }
                         }
                     }else if(boardFull.check()=='Good'){
                         changeTurnIndicator();
                     }else{
                         alert(boardFull.check());
+                        gameProgress();
                     }
                 }
                 });
@@ -398,11 +416,10 @@
         };
 
         const boardFull = (() => {
-            let board = [];
 
             const check = () =>{
                 if (board.length == 9){
-                    observer.disconnect();
+                    boardClear();
                     return 'Board Full Resetting'
                 }else{
                     return 'Good'
@@ -430,38 +447,34 @@
 
         const checkScore = (playerNumber) => {
             if (playerNumber == 1){
-                let score = parseInt(cacheDom.player1Score.slice(-1));
-                if(score >=2){
+                if(playerScores.player1 >= 2){
                     return 'Win';
                 }else{
-                    render.scoreChange(playerNumber, score)
                     return'Continue';
                 }
             }else{
                 let score = parseInt(cacheDom.player2Score.slice(-1));
-                if(score >=2){
+                if(playerScores.player2 >= 2 >=2){
                     return 'Win';
                 }else{
-                    render.scoreChange(playerNumber, score);
                     return'Continue';
                 }
             }
-            
-            // if(score >= 2){
-            //     return 'Win'
-            // }else{
-
-            // }
         };
 
         const boardClear = () =>{
+            board = [];
             for(let element of cacheDom.gridArea){
                 render.clearHTML(element);
             }
         }
 
-        
-        
+        const scoreClear = () =>{
+            playerScores.player1 = 0;
+            playerScores.player2 = 0;
+            render.scoreChange(1,0);
+            render.scoreChange(2,0);
+        }
 
         // render DOM
         const render = (() => {
@@ -494,19 +507,18 @@
                 roundWinnerDisplay.innerHTML = string;
             }
 
-            const scoreChange = (player, score) =>{
+            const scoreChange = (player, score) =>{      
                 if (player == 1){
-                    cacheDom.player1scorechange.innerHTML = `Score: ${score + 1}`
+                    cacheDom.player1scorechange.innerHTML = `Score: ${score}`
                 }else{
-                    cacheDom.player2scorechange.innerHTML = `Score: ${score + 1}`
+                    cacheDom.player2scorechange.innerHTML = `Score: ${score}`
                 }
             }
 
             const clearHTML = (element) =>{
                 element.innerHTML = ""
             }
-            
-            console.log(cacheDom.gridArea)
+        
 
             return{enterSelection:enterSelection, player1TurnDisplay:player1TurnDisplay, player2TurnDisplay:player2TurnDisplay, roundUpdate:roundUpdate, winnerDisplayUpdate:winnerDisplayUpdate, scoreChange:scoreChange,clearHTML:clearHTML}
 
@@ -601,6 +613,5 @@
             
         }
     }
-
 
 })()
