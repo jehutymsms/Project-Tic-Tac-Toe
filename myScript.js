@@ -200,8 +200,7 @@
             render.player2NameClose();
             gameBoardDisplay(...data);
             gameLogic();
-            resetGameButton()
-            return{data:data};
+            restartGameButton()
         };    
 
         // render DOM
@@ -246,36 +245,35 @@
     const gameLogic = () =>{
         // cache DOM elements
         const cacheDom = (() => {
-            let newButton = document.getElementById('new-button'),
+            let newButton = document.getElementById('new-button'), 
             playArea = document.getElementById('play-area'),
             player1Display = document.getElementById('player1Display'),
             player1Name = player1Display.childNodes[0].innerHTML,
             player1Selection = player1Display.childNodes[1].innerHTML,
             player1Score = player1Display.childNodes[2].innerHTML,
-            player1scorechange = document.getElementById(player1Display.childNodes[2].id),
+            player1ScoreChange = document.getElementById(player1Display.childNodes[2].id),
             player2Display = document.getElementById('player2Display'),
             player2Name = player2Display.childNodes[0].innerHTML,
             player2Selection = player2Display.childNodes[1].innerHTML,
             player2Score = player2Display.childNodes[2].innerHTML,
-            player2scorechange = document.getElementById(player2Display.childNodes[2].id),
+            player2ScoreChange = document.getElementById(player2Display.childNodes[2].id),
             formContainer = document.getElementById('formContainer'),
             container = document.getElementById('container'),
             gridArea = document.getElementsByClassName('block')
 
 
-            return {newButton:newButton ,playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,player1scorechange:player1scorechange,player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score,
-            player2scorechange:player2scorechange,formContainer:formContainer,container:container,gridArea:gridArea}
+            return {newButton:newButton, playArea:playArea ,player1Display:player1Display ,player1Name:player1Name ,player1Selection:player1Selection, player1Score:player1Score,player1ScoreChange:player1ScoreChange,player2Display:player2Display,player2Name:player2Name ,player2Selection:player2Selection, player2Score:player2Score,
+                player2ScoreChange:player2ScoreChange,formContainer:formContainer,container:container,gridArea:gridArea}
         })()
 
         //Variables 
         let playerScores = {player1:0, player2:0},
-        board = [];
+        board = [],
+        round = 1;
 
         // bind events
         function bindEvents() {
-            cacheDom.playArea.onclick = (e) => {
-                selection(e.target);
-            } 
+            cacheDom.playArea.addEventListener('click', selection)
         }
 
         // DOM Element Creation
@@ -291,18 +289,24 @@
         const changeTurnIndicator = (player = cacheDom.player1Display) => {
             if (player.classList.length >1){
                 render.player2TurnDisplay();
+                computerMove();
             }else{
                 render.player1TurnDisplay();
             }
         };
 
-        const selection = (target) => {
-            if(target.className == 'block' && target.innerHTML == ''){
-                render.enterSelection(turnIndicator(), target);
-            }else if (target.className == 'block'){
+
+        const selection = (event) => {
+            if(event.target.className == 'block' && event.target.innerHTML == ''){
+                render.enterSelection(turnIndicator(), event.target);
+            }else if (event.target.className == 'block'){
                 alert(`Selection present please Select another block`)
             }
         };
+
+        const unbindEvents = () =>{
+            cacheDom.playArea.removeEventListener('click', selection);
+        }
 
         const turnIndicator = () => {
             if(player1Display.className.includes('turn')){
@@ -380,29 +384,48 @@
                 }else{
                     if (checkWin(mutations[0].addedNodes[0].textContent) == 'Win'){
                         if(cacheDom.player1Selection == mutations[0].addedNodes[0].textContent){
-                            alert(`${cacheDom.player1Name} Won Round!`);
                             playerScores.player1 += 1;
-                            render.scoreChange(1,playerScores.player1);
-                            boardClear();
+                            round += 1;
+                            roundWinner(cacheDom.player1Name);
+                            unbindEvents();
+                            setTimeout(function() {
+                                roundChange()
+                                render.scoreChange(1,playerScores.player1);
+                                boardClear();
+                                bindEvents();
+                            },3000)
+                                
                             if(checkScore(1) == 'Win'){
-                                alert(`${cacheDom.player1Name} Won Game!!!`);
-                                scoreClear();
+                                gameWinner(cacheDom.player1Name);
+                                setTimeout(function(){
+                                    gameReset();
+                                },3000);
                             }
                         }else{
-                            alert(`${cacheDom.player2Name} Won Round!`);
                             playerScores.player2 += 1;
-                            render.scoreChange(2,playerScores.player2);
-                            boardClear();
+                            round += 1;
+                            roundWinner(cacheDom.player2Name);
+                            unbindEvents();
+                            setTimeout(function(){
+                                roundChange()
+                                render.scoreChange(2,playerScores.player2);
+                                boardClear();
+                                bindEvents();
+                            },3000)
+
                             if(checkScore(2) == 'Win'){
-                                alert(`${cacheDom.player1Name} Won Game!!!`)
-                                scoreClear();
+                                gameWinner(cacheDom.player2Name);
+                                setTimeout(function(){
+                                    gameReset();
+                                },3000);
                             }
                         }
                     }else if(boardFull.check()=='Good'){
                         changeTurnIndicator();
                     }else{
-                        alert(boardFull.check());
-                        gameProgress();
+                        alert('Board Full Clearing Board');
+                        changeTurnIndicator();
+                        // gameProgress();
                     }
                 }
                 });
@@ -453,8 +476,7 @@
                     return'Continue';
                 }
             }else{
-                let score = parseInt(cacheDom.player2Score.slice(-1));
-                if(playerScores.player2 >= 2 >=2){
+                if(playerScores.player2 >= 2){
                     return 'Win';
                 }else{
                     return'Continue';
@@ -474,6 +496,64 @@
             playerScores.player2 = 0;
             render.scoreChange(1,0);
             render.scoreChange(2,0);
+        }
+
+        const roundChange = () =>{
+            render.roundUpdate(round)
+        }
+
+        const roundWinner = (player) =>{
+            render.winnerDisplayUpdate(`${player} Won Round!`)
+        }
+
+        const gameWinner = (player) =>{
+            render.winnerDisplayUpdate(`${player} Won Game!`)
+        }
+
+        const gameReset = () =>{
+            scoreClear()
+            round = 1;
+            render.roundUpdate(round)
+        }
+
+        const computerMove = () =>{
+            let gameBoardHTMl = [],
+            grid = cacheDom.playArea.childNodes,
+            empty = [];
+
+            //Functions List
+            const checkEmpty = (item) => {
+                if (item == ''){
+                    return 'add'
+                }
+            }
+            
+            const randomReturn = (array) =>{
+                if (array.length == 1) {
+                    return array[0]
+                }else{
+                    
+                }
+            }
+
+            // Get all Current Tiles
+            for (i=0; i < grid.length; i++){
+                if(grid[i].className == 'block'){
+                    gameBoardHTMl.push(grid[i].innerHTML);
+                }else{
+                    break
+                }
+            }
+            
+            // Determine which tiles are empty and add to empty array
+            for (i=0; i < gameBoardHTMl.length; i++){
+                if (checkEmpty(gameBoardHTMl[i]) == 'add'){
+                    empty.push(i)
+                }
+            }
+
+
+            console.log(empty)
         }
 
         // render DOM
@@ -509,9 +589,9 @@
 
             const scoreChange = (player, score) =>{      
                 if (player == 1){
-                    cacheDom.player1scorechange.innerHTML = `Score: ${score}`
+                    cacheDom.player1ScoreChange.innerHTML = `Score: ${score}`
                 }else{
-                    cacheDom.player2scorechange.innerHTML = `Score: ${score}`
+                    cacheDom.player2ScoreChange.innerHTML = `Score: ${score}`
                 }
             }
 
@@ -524,23 +604,24 @@
 
         }) ()
         gameProgress()
-        
-        return {gameProgress:gameProgress}
+        gameLogic.gameReset = gameReset;
+        gameLogic.boardClear = boardClear;
+        gameLogic.changeTurnIndicator = changeTurnIndicator;
     }
 
-    const resetGameButton = () => {
+    const restartGameButton = () => {
         // cache DOM elements
         const cacheDom = (() =>{
         let resetButton = document.getElementById('reset'),
             playArea = document.getElementById('play-area'),
-            block = document.querySelectorAll('.block'),
+            gridArea = document.getElementsByClassName('block'),
             openModalButton = document.querySelector('[data-modal-target]'),
-            closeModalButton = document.querySelector('[data-close-button]'), resetBoard = document.getElementById('resetBoard'), restartGame = document.getElementById('restartGame'),
+            closeModalButton = document.querySelector('[data-close-button]'), restartGame = document.getElementById('restartGame'),
             overlay = document.getElementById('overlay'),
             openModalData = document.querySelector(openModalButton.dataset.modalTarget),
             closeModalTargets = closeModalButton.closest('.modal');
 
-            return{resetButton:resetButton,playArea:playArea,block:block,openModalButton:openModalButton,closeModalButton:closeModalButton,resetBoard:resetBoard,restartGame:restartGame,overlay:overlay,openModalData:openModalData,closeModalTargets:closeModalTargets}
+            return{resetButton:resetButton,playArea:playArea,gridArea:gridArea,openModalButton:openModalButton,closeModalButton:closeModalButton, restartGame:restartGame,overlay:overlay,openModalData:openModalData,closeModalTargets:closeModalTargets}
         })()
 
         // bind events
@@ -551,7 +632,7 @@
 
             cacheDom.overlay.addEventListener('click', ()=> {
                 const modals = document.querySelectorAll('.modal.active')
-                modals.forEach(modal =>{
+                modals.forEach(modal =>{ 
                     closeModal(modal);
                 })  
             })
@@ -559,13 +640,9 @@
             cacheDom.closeModalButton.addEventListener('click', ()=> {
                 closeModal(cacheDom.closeModalTargets);
             })
-
-            cacheDom.resetBoard.addEventListener('click' , ()=>{
-                closeModal(cacheDom.closeModalTargets);
+            
+            cacheDom.restartGame.addEventListener('click', ()=> {
                 boardClear();
-                newGameButton.removeGrid();
-                newGameButton.removeRoundDisplay();
-                formData.processFormData();
             })
 
         })()
@@ -595,22 +672,21 @@
 
         // Function List
         const openModal = (modal)=>{
-            if(modal ==null) return
+            if(modal == null) return
             render.modalShow(modal);
             render.overlayShow();
         }
 
         const closeModal = (modal)=>{
-            if(modal ==null) return
+            if(modal == null) return
             render.modalHide(modal);
             render.overlayHide();
         }
 
         const boardClear = () =>{
-            cacheDom.block.forEach(element => {
-                render.clearHTML(element);
-            })
-            
+            closeModal(cacheDom.openModalData);
+            gameLogic.gameReset();
+            gameLogic.boardClear();
         }
     }
 
