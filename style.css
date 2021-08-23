@@ -58,7 +58,7 @@ q:before, q:after {
 
 
 .play-area {
-	display: grid;
+	display: none;
 	width: 310px;
 	height: 310px;
 	grid-template-columns: auto auto auto;
@@ -103,6 +103,9 @@ h2{
 	color: white;
 }
 
+#round-winnerDisplay{
+	display:none;
+}
 
 .formContainer{
 	background-color:#242582;
