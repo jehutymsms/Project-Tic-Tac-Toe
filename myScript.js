@@ -98,7 +98,7 @@
             if (cacheDom.playArea.hasChildNodes()){
                 removeGrid();
                 gameLogic.boardClear();
-                gameLogic.scoreClear();
+                gameLogic.gameReset();
                 formData.render.openForm();
             }else {
                 formData.render.openForm();
@@ -188,7 +188,7 @@
             gameBoardDisplay.showBoard();
             gameLogic.unbindEvents();
             gameLogic.bindEvents();
-            gameLogic.changeTurnIndicator();
+            gameLogic.render.player1TurnDisplay();
             // restartGameButton();
         };    
 
@@ -265,8 +265,8 @@
         };
     
         // Function List
-        const changeTurnIndicator = (player = cacheDom.player1Display) => {
-            if (player.classList.length >1){
+        const changeTurnIndicator = () => {
+            if (turn == 2){
                 render.player2TurnDisplay();
             }else{
                 render.player1TurnDisplay();
@@ -284,7 +284,13 @@
         const selection = (event) => {
             if(event.target.className == 'block' && event.target.innerHTML == ''){
                 render.enterSelection(turnIndicator(), event.target);
-                gameLogic.gameProgress(event.target.innerHTML);
+                // gameLogic.gameProgress(event.target.innerHTML);
+                if (cacheDom.player2Name.innerHTML == 'Computer'){
+                    console.log('Computer Progres Runs')
+                    gameLogic.gameComputerProgress();
+                }else{
+                    gameLogic.gameProgress(event.target.innerHTML);
+                }
             }else if (event.target.className == 'block'){
                 alert(`Selection present please Select another block`)
             }
@@ -474,17 +480,15 @@
             for (i=0; i < grid.length; i++){
                 if(grid[i].className == 'block'){
                     gameBoardHTMl.push(grid[i].innerHTML);
-                }else{
-                    break
                 }
             }
-            
             // Determine which tiles are empty and add to empty array
             for (i=0; i < gameBoardHTMl.length; i++){
                 if (checkEmpty(gameBoardHTMl[i]) == 'add'){
                     empty.push(i)
                 }
             }
+            
 
 
             return computerselectionPlace(randomReturn(empty))
@@ -494,100 +498,72 @@
 
         // Game Against Computer
         const gameComputerProgress = () =>{
-
-            //Observe Changes made on the Gameboard
-            let observer = new MutationObserver(mutations => {
-                if(mutations[0].addedNodes[0]== undefined){
-                    ;
-                }else{
-                    if (checkWin(mutations[0].addedNodes[0].textContent) == 'Win'){
-                        if(cacheDom.player1Selection == mutations[0].addedNodes[0].textContent){
-                            playerScores.player1 += 1;
-                            round += 1;
-                            turnChange();
-                            changeTurnIndicator();
-                            roundWinner(cacheDom.player1Name);
-                            unbindEvents();
-                            setTimeout(function() {
-                                roundChange();
-                                render.scoreChange(1,playerScores.player1);
-                                boardClear();
-                                if (turn == 1){
-                                    bindEvents();
-                                }else{
-                                    render.enterSelection(cacheDom.player2Selection,computerMove());
-                                }
-                            },3000)
-                                
-                            if(checkScore(1) == 'Win'){
-                                gameWinner(cacheDom.player1Name);
-                                setTimeout(function(){
-                                    gameReset();
-                                    turnChange();
-                                    changeTurnIndicator();
-                                    if (turn == 1){
-                                        bindEvents();
-                                    }else{
-                                        render.enterSelection(cacheDom.player2Selection,computerMove());
-                                    }
-                                },3000);
-                            }
-                        }else{
-                            playerScores.player2 += 1;
-                            round += 1;
-                            turnChange();
-                            changeTurnIndicator();
-                            roundWinner(cacheDom.player2Name);
-                            unbindEvents();
-                            setTimeout(function(){
-                                roundChange();
-                                render.scoreChange(2,playerScores.player2);
-                                boardClear();
-                                bindEvents();
-                            },3000)
-
-                            if(checkScore(2) == 'Win'){
-                                gameWinner(cacheDom.player2Name);
-                                setTimeout(function(){
-                                    gameReset();
-                                    turnChange();
-                                    changeTurnIndicator();
-                                    bindEvents();
-                                },3000);
-                            }
-                        }
-                    }else if(boardFull() =='Good'){
-                        unbindEvents();
-                        changeTurnIndicator();
+            unbindEvents();
+            turnChange();
+            changeTurnIndicator();
+            setTimeout(function() {
+                render.enterSelection(cacheDom.player2Selection, computerMove());
+                if (checkWin(cacheDom.player2Selection.textContent) == 'Win'){
+                    if(cacheDom.player2Selection.innerHTML == turnIndicator().textContent){
+                        playerScores.player2 += 1;
+                        round += 1;
                         turnChange();
-                        if (turn == 1){
+                        roundWinner(cacheDom.player2Name.innerHTML);
+                        setTimeout(function() {
+                            roundChange();
+                            render.scoreChange(2,playerScores.player2);
+                            boardClear();
+                            changeTurnIndicator();
                             bindEvents();
-                        }else{
-                            render.enterSelection(cacheDom.player2Selection,computerMove());
+                        },3000)
+                    
+                        if(checkScore(2) == 'Win'){
+                            gameWinner(cacheDom.player2Name.innerHTML);
+                            setTimeout(function(){
+                                gameReset();
+                                changeTurnIndicator();
+                            },3000);
                         }
                     }else{
-                        unbindEvents();
-                        alert('Game Tied');
-                        changeTurnIndicator();
+                        playerScores.player1 += 1;
+                        round += 1;
                         turnChange();
-                        if (turn == 1){
+                        roundWinner(cacheDom.player1Name.innerHTML);
+                        setTimeout(function() {
+                            roundChange();
+                            render.scoreChange(2,playerScores.player2);
+                            boardClear();
+                            changeTurnIndicator();
                             bindEvents();
-                        }else{
-                            render.enterSelection(cacheDom.player2Selection,computerMove());
+                        },3000)
+                    
+                        if(checkScore(2) == 'Win'){
+                            gameWinner(cacheDom.player1Name.innerHTML);
+                            setTimeout(function(){
+                                gameReset();
+                                changeTurnIndicator();
+                            },3000);
                         }
                     }
+                }else if(boardFull() =='Good'){
+                    turnChange();
+                    changeTurnIndicator();
+                    bindEvents();
+                }else{
+                    alert('Board Full Clearing Board');
+                    turnChange();
+                    changeTurnIndicator();
+                    bindEvents();
                 }
-                });
-
-            // observe if HTML is added to grid
-            observer.observe(cacheDom.playArea, {
-            childList: true,
-            subtree: true 
-            });
+            },3000)
+            
+            // Write game Computer Progress Function for when the computer makes moves
+            
             
         };
 
         const gameProgress = (selection) => {
+            unbindEvents();
             if (checkWin(turnIndicator().textContent) == 'Win'){
                 if(cacheDom.player1Selection.innerHTML == selection){
                     playerScores.player1 += 1;
@@ -595,18 +571,19 @@
                     turnChange();
                     roundWinner(cacheDom.player1Name.innerHTML);
                     unbindEvents();
-                    setTimeout(function() {
-                        roundChange();
-                        render.scoreChange(1,playerScores.player1);
-                        boardClear();
-                        bindEvents();
+                    setTimeout(() => {
+                            roundChange();
+                            render.scoreChange(1,playerScores.player1);
+                            boardClear();
+                            bindEvents();
+                            changeTurnIndicator();
                     },3000)
                         
                     if(checkScore(1) == 'Win'){
                         gameWinner(cacheDom.player1Name.innerHTML);
-                        setTimeout(function(){
+                        setTimeout(() =>{
                             gameReset();
-                            turnChange();
+                            changeTurnIndicator();
                         },3000);
                     }
                 }else{
@@ -615,28 +592,31 @@
                     turnChange();
                     roundWinner(cacheDom.player2Name.innerHTML);
                     unbindEvents();
-                    setTimeout(function(){
-                        roundChange();
-                        render.scoreChange(2,playerScores.player2);
-                        boardClear();
-                        bindEvents();
+                    setTimeout(() => {
+                            roundChange();
+                            render.scoreChange(2,playerScores.player2);
+                            boardClear();
+                            bindEvents();
+                            changeTurnIndicator();
                     },3000)
 
                     if(checkScore(2) == 'Win'){
                         gameWinner(cacheDom.player2Name.innerHTML);
-                        setTimeout(function(){
+                        setTimeout(() =>{
                             gameReset();
-                            turnChange();
+                            changeTurnIndicator();
                         },3000);
                     }
                 }
             }else if(boardFull() =='Good'){
-                changeTurnIndicator();
                 turnChange();
+                changeTurnIndicator();
+                bindEvents();
             }else{
                 alert('Board Full Clearing Board');
-                changeTurnIndicator();
                 turnChange();
+                changeTurnIndicator();
+                bindEvents();
             }
         };
         const gameMode = () =>{
@@ -694,7 +674,7 @@
 
 
         
-        return{boardClear:boardClear,scoreClear:scoreClear,gameMode:gameMode,bindEvents:bindEvents,unbindEvents:unbindEvents,changeTurnIndicator:changeTurnIndicator,gameProgress:gameProgress}
+        return{boardClear:boardClear,scoreClear:scoreClear,gameMode:gameMode,bindEvents:bindEvents,unbindEvents:unbindEvents,changeTurnIndicator:changeTurnIndicator,gameReset:gameReset,gameComputerProgress:gameComputerProgress,gameProgress:gameProgress,render:render}
     })()
 
     const restartGameButton = () => {
