@@ -450,71 +450,26 @@
             render.roundUpdate(round)
         };
         // Testing way to pick variables based on user input
-        const playerWin1 = (number) => {
-            playerScores.player1 += 1;
+        const playerWin = (player) => {
+            playerScores[player] += 1;
             round += 1;
             turnChange();
-            roundWinner(cacheDom.player1Name.innerHTML);
+            roundWinner(cacheDom[`${player}Name`].innerHTML);
             unbindEvents();
             setTimeout(() => {
                 roundChange();
-                render.scoreChange(1, playerScores.player1);
+                render.scoreChange(1, playerScores[player]);
                 boardClear();
                 changeTurnIndicator();
                 bindEvents();
             }, 3000);
             if (checkScore(1) == 'Win') {
-                gameWinner(cacheDom.player1Name.innerHTML);
+                gameWinner(cacheDom[`${player}Name`].innerHTML);
                 setTimeout(() => {
                     gameReset();
                     changeTurnIndicator();
                     bindEvents();
                 }, 3000);
-            }
-        }
-
-        const playerWin = (player = 1) => {
-            if (player == 'player1') {
-                round += 1;
-                turnChange();
-                roundWinner(cacheDom.player1Name.innerHTML);
-                unbindEvents();
-                setTimeout(() => {
-                    roundChange();
-                    render.scoreChange(1, playerScores.player1);
-                    boardClear();
-                    changeTurnIndicator();
-                    bindEvents();
-                }, 3000);
-                if (checkScore(1) == 'Win') {
-                    gameWinner(cacheDom.player1Name.innerHTML);
-                    setTimeout(() => {
-                        gameReset();
-                        changeTurnIndicator();
-                        bindEvents();
-                    }, 3000);
-                }
-            } else {
-                playerScores.player2 += 1;
-                round += 1;
-                turnChange();
-                roundWinner(cacheDom.player2Name.innerHTML);
-                unbindEvents();
-                setTimeout(() => {
-                    roundChange();
-                    render.scoreChange(2, playerScores.player2);
-                    boardClear();
-                    changeTurnIndicator();
-                    bindEvents();
-                }, 3000)
-                if (checkScore(2) == 'Win') {
-                    gameWinner(cacheDom.player2Name.innerHTML);
-                    setTimeout(() => {
-                        gameReset();
-                        changeTurnIndicator();
-                        bindEvents();
-                    }, 3000);
-                }
             }
         }
         // Computer Selected Move
@@ -570,47 +525,11 @@
             changeTurnIndicator();
             setTimeout(function() {
                 render.enterSelection(cacheDom.player2Selection, computerMove());
-                if (checkWin(cacheDom.player2Selection.textContent) == 'Win'){
+                if (checkWin(turnIndicator().textContent) == 'Win'){
                     if(cacheDom.player2Selection.innerHTML == turnIndicator().textContent){
-                        playerScores.player2 += 1;
-                        round += 1;
-                        turnChange();
-                        roundWinner(cacheDom.player2Name.innerHTML);
-                        setTimeout(function() {
-                            roundChange();
-                            render.scoreChange(2,playerScores.player2);
-                            boardClear();
-                            changeTurnIndicator();
-                            bindEvents();
-                        },3000)
-                    
-                        if(checkScore(2) == 'Win'){
-                            gameWinner(cacheDom.player2Name.innerHTML);
-                            setTimeout(function(){
-                                gameReset();
-                                changeTurnIndicator();
-                            },3000);
-                        }
+                        playerWin('player2');
                     }else{
-                        playerScores.player1 += 1;
-                        round += 1;
-                        turnChange();
-                        roundWinner(cacheDom.player1Name.innerHTML);
-                        setTimeout(function() {
-                            roundChange();
-                            render.scoreChange(2,playerScores.player2);
-                            boardClear();
-                            changeTurnIndicator();
-                            bindEvents();
-                        },3000)
-                    
-                        if(checkScore(2) == 'Win'){
-                            gameWinner(cacheDom.player1Name.innerHTML);
-                            setTimeout(function(){
-                                gameReset();
-                                changeTurnIndicator();
-                            },3000);
-                        }
+                        playerWin('player1');
                     }
                 }else if(boardFull() =='Good'){
                     turnChange();
