@@ -284,13 +284,7 @@
         const selection = (event) => {
             if(event.target.className == 'block' && event.target.innerHTML == ''){
                 render.enterSelection(turnIndicator(), event.target);
-                // gameLogic.gameProgress(event.target.innerHTML);
-                if (cacheDom.player2Name.innerHTML == 'Computer'){
-                    console.log('Computer Progres Runs')
-                    gameLogic.gameComputerProgress();
-                }else{
-                    gameLogic.gameProgress(event.target.innerHTML);
-                }
+                gameLogic.gameProgress(event.target.innerHTML);
             }else if (event.target.className == 'block'){
                 alert(`Selection present please Select another block`)
             }
@@ -461,16 +455,15 @@
                 render.scoreChange(1, playerScores[player]);
                 boardClear();
                 changeTurnIndicator();
-                bindEvents();
+                if (checkScore(1) == 'Win') {
+                    gameWinner(cacheDom[`${player}Name`].innerHTML);
+                    setTimeout(() => {
+                        gameReset();
+                        changeTurnIndicator();
+                    }, 2000);
+                }
             }, 3000);
-            if (checkScore(1) == 'Win') {
-                gameWinner(cacheDom[`${player}Name`].innerHTML);
-                setTimeout(() => {
-                    gameReset();
-                    changeTurnIndicator();
-                    bindEvents();
-                }, 3000);
-            }
+            
         }
         // Computer Selected Move
         // This should return the block number we want to enter
@@ -519,33 +512,16 @@
         }
 
         // Game Against Computer
-        const gameComputerProgress = () =>{
-            unbindEvents();
-            turnChange();
-            changeTurnIndicator();
-            setTimeout(function() {
-                render.enterSelection(cacheDom.player2Selection, computerMove());
-                if (checkWin(turnIndicator().textContent) == 'Win'){
-                    if(cacheDom.player2Selection.innerHTML == turnIndicator().textContent){
-                        playerWin('player2');
-                    }else{
-                        playerWin('player1');
-                    }
-                }else if(boardFull() =='Good'){
-                    turnChange();
-                    changeTurnIndicator();
-                    bindEvents();
-                }else{
-                    alert('Board Full Clearing Board');
-                    turnChange();
-                    changeTurnIndicator();
-                    bindEvents();
-                }
-            },2000)
-            
-            // Write game Computer Progress Function for when the computer makes moves
-            
-            
+        const gameComputerProgress = () => {
+            if (turn == 2 && cacheDom.player2Name.innerHTML == 'Computer') {
+                setTimeout(() => {
+                    render.enterSelection(cacheDom.player2Selection, computerMove());
+                    gameProgress();
+                }, 3000)
+            } else {
+                bindEvents();
+            }
+
         };
 
         // Game Against Player
@@ -554,18 +530,21 @@
             if (checkWin(turnIndicator().textContent) == 'Win'){
                 if(cacheDom.player1Selection.innerHTML == selection){
                     playerWin('player1');
+                    gameComputerProgress();
+                    
                 }else{
                     playerWin('player2');
+                    gameComputerProgress();
                 }
             }else if(boardFull() =='Good'){
                 turnChange();
                 changeTurnIndicator();
-                bindEvents();
+                gameComputerProgress();
             }else{
                 alert('Board Full Clearing Board');
                 turnChange();
                 changeTurnIndicator();
-                bindEvents();
+                gameComputerProgress();
             }
         };
         const gameMode = () =>{
