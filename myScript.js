@@ -304,7 +304,7 @@
 
         const checkWin = ( selection = 'X')=>{
             let gameBoardHTMl = [],
-            grid = cacheDom.playArea.childNodes;
+            grid = cacheDom.gridArea;
             
             // Extract HTML from Grid Elements
             // Add to grid
@@ -375,25 +375,7 @@
                     return 'Good'
                 }
             };
-
-            return check();
-
-            // 
-            // let observer = new MutationObserver(mutations => {
-            //     if(mutations[0].addedNodes[0]== undefined){
-            //         observer.disconnect();
-            //     }else{
-            //         board.push(mutations[0].addedNodes[0].textContent)
-            //     }
-                
-            //     });
-
-            // observer.observe(cacheDom.playArea, {
-            //     childList: true,
-            //     subtree: true 
-            // });
-
-            
+            return check();          
         };
 
         const checkScore = (playerNumber) => {
@@ -471,7 +453,7 @@
         const computerMove = () => {
 
             let gameBoardHTMl = [],
-            grid = cacheDom.playArea.childNodes,
+            grid = cacheDom.gridArea,
             empty = [];
 
             //Functions List
@@ -511,10 +493,105 @@
 
         }
 
+        const computerMoveTest = () =>{
+
+            let gameBoardHTMl = [],
+            grid = cacheDom.gridArea,
+            // human
+            huPlayer = cacheDom.player1Selection.innerHTML,
+            // ai
+            aiPlayer = cacheDom.player2Selection.innerHTML;
+
+            for (i=0; i < grid.length; i++){
+                if(grid[i].className == 'block'){
+                    gameBoardHTMl.push(grid[i].innerHTML);
+                }
+            }
+            // Checks if item has HTML
+            const checkEmpty = (item) => {
+                if (item == ''){
+                    return 'add'
+                }
+            }
+
+            //Returns Index Numbers that are empty from Grid
+            const emptySquares = () => {
+                let empty = [],
+                    grid = cacheDom.gridArea;
+
+                // Get all Current Tiles
+                for (i = 0; i < grid.length; i++) {
+                    if (grid[i].className == 'block') {
+                        gameBoardHTMl.push(grid[i].innerHTML);
+                    }
+                }
+                // Determine which tiles are empty and add to empty array
+                for (i = 0; i < gameBoardHTMl.length; i++) {
+                    if (checkEmpty(gameBoardHTMl[i]) == 'add') {
+                        empty.push(i)
+                    }
+                }
+                return empty
+            }
+
+            const minimax = (newBoard, player) => {
+                let availSpots = emptySquares();
+            
+                if(checkWin(cacheDom.player1Selection) == 'Win') {
+                    return {score: -10};
+                }else if(checkWin(cacheDom.player2Selection) == 'Win') {
+                    return {score: 10};
+                }else if(availSpots.length === 0) {
+                    return {score: 0};
+                }
+                let moves = [];
+                for (let i = 0; i < availSpots.length; i++) {
+                    let move = {};
+                    move.index = newBoard[availSpots[i]];
+                    newBoard[availSpots[i]] = player;
+            
+                    if (player == aiPlayer) {
+                        let result = minimax(newBoard, huPlayer);
+                        move.score = result.score;
+                    } else {
+                        let result = minimax(newBoard, aiPlayer);
+                        move.score = result.score;
+                    }
+            
+                    newBoard[availSpots[i]] = move.index;
+            
+                    moves.push(move);
+                }
+            
+                let bestMove;
+                if(player === aiPlayer) {
+                    let bestScore = 10000;
+                    for(let i = 0; i < moves.length; i++) {
+                        if (moves[i].score > bestScore) {
+                            bestScore = moves[i].score;
+                            bestMove = i;
+                        }
+                    }
+                } else {
+                    let bestScore = -10000;
+                    for(let i = 0; i < moves.length; i++) {
+                        if (moves[i].score < bestScore) {
+                            bestScore = moves[i].score;
+                            bestMove = i;
+                        }
+                    }
+                }
+            
+                return moves[bestMove];
+            }
+            return minimax(gameBoardHTMl, aiPlayer);
+        }
+
         // Game Against Computer
         const gameComputerProgress = () => {
             if (turn == 2 && cacheDom.player2Name.innerHTML == 'Computer') {
                 setTimeout(() => {
+                    // console.log(computerMoveTest())
                     render.enterSelection(cacheDom.player2Selection, computerMove());
                     gameProgress();
                 }, 3000)
