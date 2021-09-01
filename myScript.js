@@ -302,16 +302,60 @@
             }
         };
 
-        const checkWin = ( selection = 'X')=>{
+        //Checking who wins based on board provided
+        // player is a string of selection
+        // board is an array of all the spaces on board
+        const dynamicCheckWin = (board , player) =>{
+            //Function List
+            const win = (condition, gridSelection, selection) => {
+                let winList = [];
+                for(const condi of condition){
+                    winList = [];
+                    for(const index of condi){
+                        if(gridSelection[index] == selection){
+                            winList.push(gridSelection[index])
+                                if(winList.length == 3){
+                                    return 'Win';
+                                }
+                        }else{
+                            winList = [];
+                        }
+                    }
+                }
+                return 'Loss'
+            }
+            const checkVerticalWin = (selection, gridselection)=>{
+                let condition = [[0,3,6],[1,4,7],[2,5,8]];
+                return win(condition, gridselection, selection);
+            }
+            const checkhorizontalWin = (selection, gridselection)=>{
+                let condition = [[0,1,2],[3,4,5],[6,7,8]];
+                return win(condition, gridselection, selection);
+            }
+            const checkDiagonalWin = (selection, gridselection)=>{
+                let condition = [[0,4,8],[2,4,6]];
+                return win(condition, gridselection, selection);
+            }
+            // Win checker Statements
+            if(checkVerticalWin(player,board) == 'Win'){
+                return "Win";
+            }else if(checkhorizontalWin(player,board) == 'Win'){
+                return "Win";
+            }else if (checkDiagonalWin(player,board) == 'Win'){
+                return "Win";
+            }else{
+                return "Loss";
+            }
+        }
+
+        const checkWin = (selection = 'X')=>{
             let gameBoardHTMl = [],
             grid = cacheDom.gridArea;
             
             // Extract HTML from Grid Elements
             // Add to grid
             for (let i=0; i < grid.length; i++){
-                if(grid[i].className == 'block'){
-                    gameBoardHTMl.push(grid[i].innerHTML);
-                }
+                gameBoardHTMl.push(grid[i].innerHTML);
             }
             //Function List
             const win = (condition, gridSelection, selection) => {
@@ -447,66 +491,27 @@
             }, 3000);
             
         }
-        // Computer Selected Move
-        // This should return the block number we want to enter
-        //Should return let block = document.getElementById(`block_${item}`);
-        const computerMove = () => {
 
-            let gameBoardHTMl = [],
-            grid = cacheDom.gridArea,
-            empty = [];
-
-            //Functions List
-            const checkEmpty = (item) => {
-                if (item == ''){
-                    return 'add'
-                }
-            }
-
-            //Enter Computer Selection in grid
-            const computerselectionPlace = (item) =>{
-                let block = document.getElementById(`block_${item}`);
-                return block
-            }
-
-            const randomReturn = (array) =>{
-                    return array[0];
-            }
-
-            // Get all Current Tiles
-            for (i=0; i < grid.length; i++){
-                if(grid[i].className == 'block'){
-                    gameBoardHTMl.push(grid[i].innerHTML);
-                }
-            }
-            // Determine which tiles are empty and add to empty array
-            for (i=0; i < gameBoardHTMl.length; i++){
-                if (checkEmpty(gameBoardHTMl[i]) == 'add'){
-                    empty.push(i)
-                }
-            }
-            
-
-
-            return computerselectionPlace(randomReturn(empty))
-
-
-        }
-
+        // Updated Computer AI
         const computerMoveTest = () =>{
 
             let gameBoardHTMl = [],
             grid = cacheDom.gridArea,
             // human
-            huPlayer = cacheDom.player1Selection.innerHTML,
+            humanPlayer = cacheDom.player1Selection.innerHTML,
             // ai
-            aiPlayer = cacheDom.player2Selection.innerHTML;
+            computerPlayer = cacheDom.player2Selection.innerHTML;
 
             for (i=0; i < grid.length; i++){
-                if(grid[i].className == 'block'){
-                    gameBoardHTMl.push(grid[i].innerHTML);
-                }
+                gameBoardHTMl.push(grid[i].innerHTML);
             }
+
+            //Return Computer Selection in grid
+            const computerselectionPlace = (item) =>{
+                let block = document.getElementById(`block_${item}`);
+                return block;
+            }
+
             // Checks if item has HTML
             const checkEmpty = (item) => {
                 if (item == ''){
@@ -514,87 +519,86 @@
                 }
             }
 
-            //Returns Index Numbers that are empty from Grid
-            const emptySquares = () => {
-                let empty = [],
-                    grid = cacheDom.gridArea;
-
-                // Get all Current Tiles
-                for (i = 0; i < grid.length; i++) {
-                    if (grid[i].className == 'block') {
-                        gameBoardHTMl.push(grid[i].innerHTML);
-                    }
-                }
+            //Returns Index Numbers that are empty from Board
+            //Takes in an Array
+            const emptySquares = (board) => {
+                let empty = [];
                 // Determine which tiles are empty and add to empty array
-                for (i = 0; i < gameBoardHTMl.length; i++) {
-                    if (checkEmpty(gameBoardHTMl[i]) == 'add') {
+                for (i = 0; i < board.length; i++) {
+                    if (checkEmpty(board[i]) == 'add') {
                         empty.push(i)
                     }
                 }
                 return empty
             }
+            
 
-            const minimax = (newBoard, player) => {
-                let availSpots = emptySquares();
-            
-                if(checkWin(cacheDom.player1Selection) == 'Win') {
-                    return {score: -10};
-                }else if(checkWin(cacheDom.player2Selection) == 'Win') {
-                    return {score: 10};
-                }else if(availSpots.length === 0) {
-                    return {score: 0};
+            const minimax = (gameData, player) => {
+                
+                if(dynamicCheckWin(gameData, humanPlayer) == 'Win') {
+                    return {evaluation : -10};
+                }else if(dynamicCheckWin(gameData, computerPlayer) == 'Win') {
+                    return {evaluation : 10};
+                }else if(emptySquares(gameData).length == 0) {
+                    return {evaluation : 0};
                 }
-                let moves = [];
-                for (let i = 0; i < availSpots.length; i++) {
-                    let move = {};
-                    move.index = newBoard[availSpots[i]];
-                    newBoard[availSpots[i]] = player;
-            
-                    if (player == aiPlayer) {
-                        let result = minimax(newBoard, huPlayer);
-                        move.score = result.score;
-                    } else {
-                        let result = minimax(newBoard, aiPlayer);
-                        move.score = result.score;
+                let emptySpaces = emptySquares(gameData),
+                moves = [];
+
+
+
+                for (let i = 0; i < emptySpaces.length; i++) {
+                    let id = emptySpaces[i];
+
+                    let savedBoardSpace = gameData[id];
+
+                    gameData[id] = player;
+
+                    let move = {}
+
+                    move.id = id
+                    
+                    if(player == computerPlayer){
+                        move.evaluation = minimax(gameData,humanPlayer).evaluation;
+                    }else{
+                        move.evaluation = minimax(gameData,computerPlayer).evaluation;
                     }
-            
-                    newBoard[availSpots[i]] = move.index;
-            
+
+                    gameData[id] = savedBoardSpace;
+
                     moves.push(move);
                 }
-            
                 let bestMove;
-                if(player === aiPlayer) {
-                    let bestScore = 10000;
+            
+                if(player == computerPlayer) {
+                    let bestEvaluation = -Infinity;
                     for(let i = 0; i < moves.length; i++) {
-                        if (moves[i].score > bestScore) {
-                            bestScore = moves[i].score;
-                            bestMove = i;
+                        if (moves[i].evaluation > bestEvaluation) {
+                            bestEvaluation = moves[i].evaluation;
+                            bestMove = moves[i];
                         }
                     }
                 } else {
-                    let bestScore = -10000;
+                    let bestEvaluation = +Infinity;
                     for(let i = 0; i < moves.length; i++) {
-                        if (moves[i].score < bestScore) {
-                            bestScore = moves[i].score;
-                            bestMove = i;
+                        if (moves[i].evaluation < bestEvaluation) {
+                            bestEvaluation = moves[i].evaluation;
+                            bestMove = moves[i];
                         }
                     }
                 }
-            
-                return moves[bestMove];
+                return bestMove;
             }
-            return minimax(gameBoardHTMl, aiPlayer);
+            return computerselectionPlace(minimax(gameBoardHTMl,computerPlayer).id)
         }
 
         // Game Against Computer
         const gameComputerProgress = () => {
             if (turn == 2 && cacheDom.player2Name.innerHTML == 'Computer') {
                 setTimeout(() => {
-                    // console.log(computerMoveTest())
-                    render.enterSelection(cacheDom.player2Selection, computerMove());
+                    render.enterSelection(cacheDom.player2Selection, computerMoveTest());
                     gameProgress();
-                }, 3000)
+                }, 1000)
             } else {
                 bindEvents();
             }
@@ -604,6 +608,7 @@
         // Game Against Player
         const gameProgress = (selection) => {
             unbindEvents();
+            
             if (checkWin(turnIndicator().textContent) == 'Win'){
                 if(cacheDom.player1Selection.innerHTML == selection){
                     playerWin('player1');
@@ -618,10 +623,14 @@
                 changeTurnIndicator();
                 gameComputerProgress();
             }else{
-                alert('Board Full Clearing Board');
-                turnChange();
-                changeTurnIndicator();
-                gameComputerProgress();
+                render.winnerDisplayUpdate('Tie Game');
+                setTimeout(()=>{
+                    roundChange();
+                    turnChange();
+                    changeTurnIndicator();
+                    gameComputerProgress();
+                },3000)
+                
             }
         };
         const gameMode = () =>{
