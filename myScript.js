@@ -189,7 +189,7 @@
             gameLogic.unbindEvents();
             gameLogic.bindEvents();
             gameLogic.render.player1TurnDisplay();
-            // restartGameButton();
+            gameLogic.boardClear();
         };    
 
         // render DOM
