@@ -691,7 +691,7 @@
         return{boardClear:boardClear,scoreClear:scoreClear,gameMode:gameMode,bindEvents:bindEvents,unbindEvents:unbindEvents,changeTurnIndicator:changeTurnIndicator,gameReset:gameReset,gameComputerProgress:gameComputerProgress,gameProgress:gameProgress,render:render}
     })()
 
-    const restartGameButton = () => {
+    const restartGameButton = (() => {
         // cache DOM elements
         const cacheDom = (() =>{
         let resetButton = document.getElementById('reset'),
@@ -717,27 +717,22 @@
             cacheDom.openModalButton.addEventListener('click', ()=> {
                 openModal(cacheDom.openModalData);
             })
-
             cacheDom.overlay.addEventListener('click', ()=> {
                 const modals = document.querySelectorAll('.modal.active')
                 modals.forEach(modal =>{ 
                     closeModal(modal);
                 })  
             })
-
             cacheDom.closeModalButton.addEventListener('click', ()=> {
                 closeModal(cacheDom.closeModalTargets);
             })
-            
             cacheDom.restartGame.addEventListener('click', ()=> {
                 boardClear();
             })
-
         })()
 
         // render DOM
         const render = (() =>{
-
             const modalShow = (modal) =>{
                 modal.classList.add('active');
             }
@@ -753,13 +748,10 @@
             const clearHTML = (element) =>{
                 element.innerHTML = ""
             }
-
             const player1TurnDisplay = () =>{
                 player1Display.classList.add('turn');
                 player2Display.classList.remove('turn');
             }
-
-
             return{modalShow:modalShow,modalHide:modalHide,overlayShow:overlayShow,overlayHide:overlayHide,clearHTML:clearHTML, player1TurnDisplay:player1TurnDisplay}
         })()
 
@@ -778,12 +770,10 @@
 
         const boardClear = () =>{
             closeModal(cacheDom.openModalData);
-            console.log(gameLogic.gameReset)
             gameLogic.gameReset();
-            console.log(gameLogic.boardClear)
             gameLogic.boardClear();
             // render.player1TurnDisplay();
         }
-    }
+    })()
 
 })()
